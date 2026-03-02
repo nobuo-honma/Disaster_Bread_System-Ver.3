@@ -88,6 +88,9 @@ export interface TItemStock {
   item_code: string;
   actual_stock: number;
   updated_at: string;
+  // 以下の2行を追加
+  available_stock: number; 
+  stock_status: '適正' | '僅少' | '欠品' | string;
 }
 
 export interface TProductStock {

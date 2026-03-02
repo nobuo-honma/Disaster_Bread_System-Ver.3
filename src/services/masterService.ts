@@ -4,69 +4,106 @@
  */
 
 import { MProduct, MItem, MBom, MDestination, MUser } from '../types';
-
-// Mock implementation of Master Data Service
-const mockProducts: MProduct[] = [
-  { id: 'p1', product_code: 'PRD-001', product_name: 'Product A', unit_cs_to_p: 12, is_active: true },
-  { id: 'p2', product_code: 'PRD-002', product_name: 'Product B', unit_cs_to_p: 24, is_active: true },
-];
-
-const mockItems: MItem[] = [
-  { id: 'i1', item_code: 'ITM-001', item_name: 'Material X', category: 'Raw Material', unit: 'kg', safety_stock: 100, is_active: true },
-  { id: 'i2', item_code: 'ITM-002', item_name: 'Material Y', category: 'Packaging', unit: 'pcs', safety_stock: 500, is_active: true },
-];
-
-const mockDestinations: MDestination[] = [
-  { id: 'd1', dest_code: 'DST-001', dest_name: 'Customer A', dest_type: 'Customer', is_active: true },
-  { id: 'd2', dest_code: 'DST-002', dest_name: 'Supplier B', dest_type: 'Supplier', is_active: true },
-];
-
-const mockUsers: MUser[] = [
-  { id: 'u1', username: 'admin', email: 'admin@example.com', role: 'Admin', is_active: true },
-  { id: 'u2', username: 'user1', email: 'user1@example.com', role: 'User', is_active: true },
-];
+import { supabase } from '../lib/supabase';
 
 export const masterService = {
   // Products
   async getProducts(): Promise<MProduct[]> {
-    return mockProducts;
+    const { data, error } = await supabase
+      .from('m_products')
+      .select('*')
+      .order('product_code');
+
+    if (error) throw error;
+    return data || [];
   },
   async saveProduct(product: Partial<MProduct>): Promise<void> {
-    console.log('Saving product', product);
+    const { error } = await supabase
+      .from('m_products')
+      .upsert(product);
+
+    if (error) throw error;
   },
 
   // Items
   async getItems(): Promise<MItem[]> {
-    return mockItems;
+    const { data, error } = await supabase
+      .from('m_items')
+      .select('*')
+      .order('item_code');
+
+    if (error) throw error;
+    return data || [];
   },
   async saveItem(item: Partial<MItem>): Promise<void> {
-    console.log('Saving item', item);
+    const { error } = await supabase
+      .from('m_items')
+      .upsert(item);
+
+    if (error) throw error;
   },
 
   // BOM
   async getBOM(productId: string): Promise<MBom[]> {
-    console.log('Fetching BOM for', productId);
-    return [
-      { id: 'b1', product_id: productId, product_code: 'PRD-001', item_id: 'i1', item_code: 'ITM-001', quantity: 0.5 },
-    ];
+    const { data, error } = await supabase
+      .from('m_boms')
+      .select('*')
+      .eq('product_id', productId);
+
+    if (error) throw error;
+    return data || [];
   },
   async saveBOM(productId: string, entries: Partial<MBom>[]): Promise<void> {
-    console.log('Saving BOM for', productId, entries);
+    // Delete existing entries for this product and insert new ones
+    const { error: deleteError } = await supabase
+      .from('m_boms')
+      .delete()
+      .eq('product_id', productId);
+
+    if (deleteError) throw deleteError;
+
+    if (entries.length > 0) {
+      const { error: insertError } = await supabase
+        .from('m_boms')
+        .insert(entries.map(e => ({ ...e, product_id: productId })));
+
+      if (insertError) throw insertError;
+    }
   },
 
   // Destinations
   async getDestinations(): Promise<MDestination[]> {
-    return mockDestinations;
+    const { data, error } = await supabase
+      .from('m_destinations')
+      .select('*')
+      .order('dest_code');
+
+    if (error) throw error;
+    return data || [];
   },
   async saveDestination(dest: Partial<MDestination>): Promise<void> {
-    console.log('Saving destination', dest);
+    const { error } = await supabase
+      .from('m_destinations')
+      .upsert(dest);
+
+    if (error) throw error;
   },
 
   // Users
   async getUsers(): Promise<MUser[]> {
-    return mockUsers;
+    const { data, error } = await supabase
+      .from('m_users')
+      .select('*')
+      .order('username');
+
+    if (error) throw error;
+    return data || [];
   },
   async saveUser(user: Partial<MUser>): Promise<void> {
-    console.log('Saving user', user);
+    const { error } = await supabase
+      .from('m_users')
+      .upsert(user);
+
+    if (error) throw error;
   }
 };

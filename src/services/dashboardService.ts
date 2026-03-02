@@ -4,29 +4,26 @@
  */
 
 import { TItemStock, TMfgPlan, TStocktakingLog } from '../types';
+import { supabase } from '../lib/supabase';
 
-// NOTE: In a real app, you would import the actual Supabase client.
-// This is a mock implementation of the service logic.
 export const dashboardService = {
   async getDashboardData() {
     const today = new Date().toISOString().slice(0, 10);
 
-    // This is where the actual Supabase logic would go.
-    // For demonstration, we'll simulate the structure the user provided.
-    
-    /*
     const [stocksRes, plansRes, logsRes] = await Promise.all([
-      supabase.from('t_item_stock').select('*').in('stock_status', ['在庫低下', '欠品']),
+      supabase.from('t_item_stocks').select('*').in('stock_status', ['在庫低下', '欠品']),
       supabase.from('t_mfg_plans').select('*').eq('scheduled_date', today).order('scheduled_date'),
-      supabase.from('t_stocktaking_log').select('*').order('adjusted_at', { ascending: false }).limit(10)
+      supabase.from('t_stocktaking_logs').select('*').order('adjusted_at', { ascending: false }).limit(10)
     ]);
-    */
 
-    // Simulating a successful response
+    if (stocksRes.error) throw stocksRes.error;
+    if (plansRes.error) throw plansRes.error;
+    if (logsRes.error) throw logsRes.error;
+
     return {
-      alerts: [] as TItemStock[],
-      todayPlans: [] as TMfgPlan[],
-      stocktakingLogs: [] as TStocktakingLog[],
+      alerts: stocksRes.data || [],
+      todayPlans: plansRes.data || [],
+      stocktakingLogs: logsRes.data || [],
     };
   }
 };

@@ -4,47 +4,61 @@
  */
 
 import { TMfgPlan, TOrder, TProductStock } from '../types';
-
-// Mock implementation of Manufacturing Service
-const mockPlans: Record<string, TMfgPlan[]> = {
-  'ORD-1001': [
-    {
-      id: 'plan-1',
-      plan_code: 'PLAN-ORD-1001-001',
-      order_code: 'ORD-1001',
-      product_code: 'PRD-001',
-      scheduled_date: '2025-05-20',
-      amount_kg: 500,
-      amount_cs: 41,
-      status: '計画',
-      remarks: '通常製造'
-    }
-  ]
-};
+import { supabase } from '../lib/supabase';
 
 export const manufacturingService = {
   async getPlansByOrder(orderCode: string): Promise<TMfgPlan[]> {
-    return mockPlans[orderCode] || [];
+    const { data, error } = await supabase
+      .from('t_mfg_plans')
+      .select('*')
+      .eq('order_code', orderCode)
+      .order('scheduled_date');
+
+    if (error) throw error;
+    return data || [];
   },
 
   async getAllPlans(): Promise<TMfgPlan[]> {
-    return Object.values(mockPlans).flat();
+    const { data, error } = await supabase
+      .from('t_mfg_plans')
+      .select('*')
+      .order('scheduled_date');
+
+    if (error) throw error;
+    return data || [];
   },
 
   async savePlans(orderCode: string, plans: Partial<TMfgPlan>[]): Promise<void> {
-    console.log('Saving plans for order', orderCode, plans);
-    // In a real app, this would update the database
+    const { error } = await supabase
+      .from('t_mfg_plans')
+      .upsert(plans.map(p => ({ ...p, order_code: orderCode })));
+
+    if (error) throw error;
   },
 
   async updatePlanStatus(planId: string, status: string): Promise<void> {
-    console.log('Updating plan status', planId, status);
+    const { error } = await supabase
+      .from('t_mfg_plans')
+      .update({ status })
+      .eq('id', planId);
+
+    if (error) throw error;
   },
 
   async updatePlanDate(planId: string, date: string): Promise<void> {
-    console.log('Updating plan date', planId, date);
+    const { error } = await supabase
+      .from('t_mfg_plans')
+      .update({ scheduled_date: date })
+      .eq('id', planId);
+
+    if (error) throw error;
   },
 
   async saveProductionResult(result: Partial<TProductStock>): Promise<void> {
-    console.log('Saving production result', result);
+    const { error } = await supabase
+      .from('t_product_stocks')
+      .insert(result);
+
+    if (error) throw error;
   }
 };

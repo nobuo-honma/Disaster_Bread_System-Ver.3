@@ -4,27 +4,47 @@
  */
 
 import { TReceiving } from '../types';
-
-// Mock implementation of Receiving Service
-const mockReceivings: TReceiving[] = [
-  { id: 'r1', receiving_code: 'REC-001', item_code: 'ITM-001', scheduled_date: '2025-05-20', order_quantity: 100, actual_quantity: 100, status: '入荷済' },
-  { id: 'r2', receiving_code: 'REC-002', item_code: 'ITM-002', scheduled_date: '2025-05-22', order_quantity: 500, status: '未入荷' },
-];
+import { supabase } from '../lib/supabase';
 
 export const receivingService = {
   async getReceivings(): Promise<TReceiving[]> {
-    return mockReceivings;
+    const { data, error } = await supabase
+      .from('t_receivings')
+      .select('*')
+      .order('scheduled_date');
+
+    if (error) throw error;
+    return data || [];
   },
   async saveReceiving(rec: Partial<TReceiving>): Promise<void> {
-    console.log('Saving receiving', rec);
+    const { error } = await supabase
+      .from('t_receivings')
+      .upsert(rec);
+
+    if (error) throw error;
   },
   async getReceivingList(): Promise<TReceiving[]> {
-    return mockReceivings;
+    const { data, error } = await supabase
+      .from('t_receivings')
+      .select('*')
+      .order('scheduled_date');
+
+    if (error) throw error;
+    return data || [];
   },
   async registerReceiving(data: Partial<TReceiving>): Promise<void> {
-    console.log('Registering receiving', data);
+    const { error } = await supabase
+      .from('t_receivings')
+      .upsert(data);
+
+    if (error) throw error;
   },
   async processReceiving(row: TReceiving, actualQty: number): Promise<void> {
-    console.log('Processing receiving', row, actualQty);
+    const { error } = await supabase
+      .from('t_receivings')
+      .update({ actual_quantity: actualQty, status: '入荷済' })
+      .eq('id', row.id);
+
+    if (error) throw error;
   }
 };
