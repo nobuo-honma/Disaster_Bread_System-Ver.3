@@ -26,7 +26,7 @@ export default function FooterDate() {
           {time.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </div>
       </div>
-      
+
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-3">
           <div className="text-right">
@@ -35,7 +35,7 @@ export default function FooterDate() {
           </div>
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
         </div>
-        
+
         <div className="text-[10px] font-black text-slate-700 uppercase tracking-[0.2em]">
           Nexus ERP v2.4.0-Stable
         </div>

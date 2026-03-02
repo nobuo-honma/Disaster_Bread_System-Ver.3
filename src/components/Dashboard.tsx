@@ -37,7 +37,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex h-full flex-col items-center justify-center text-slate-400">
-        <motion.div 
+        <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           className="h-10 w-10 rounded-full border-4 border-blue-600 border-t-transparent mb-4"
@@ -69,13 +69,13 @@ export default function Dashboard() {
           </h1>
           <p className="text-slate-500 font-medium text-sm">Operational Overview & Critical Alerts</p>
         </div>
-        
+
         <div className="flex items-center gap-6">
           <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-xs font-bold text-slate-300 transition-all hover:text-white group">
             <BookOpen size={16} className="text-slate-500 group-hover:text-blue-400 transition-colors" />
             操作マニュアル
           </button>
-          
+
           <div className="text-right hidden sm:block">
             <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">System Status</div>
             <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
@@ -106,10 +106,10 @@ export default function Dashboard() {
               ) : (
                 <div className="grid gap-3">
                   {alerts.map((a) => (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      key={a.id} 
+                      key={a.id}
                       className="flex items-center justify-between p-4 rounded-xl border border-slate-800 bg-slate-950/40 group hover:border-amber-500/30 transition-all"
                     >
                       <div className="flex flex-col">

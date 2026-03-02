@@ -353,29 +353,29 @@ export default function Orders() {
 
   return (
     <div className="max-w-[1600px] mx-auto min-h-screen p-4 lg:p-10 bg-slate-950 text-slate-200">
-      <div className="flex flex-col lg:flex-row gap-10">
-        <div className="w-full lg:w-[60%] space-y-8">
-          <header className="flex justify-between items-end border-b border-slate-800 pb-8">
+      <div className="flex flex-col xl:flex-row gap-8 lg:gap-10">
+        <div className="w-full xl:w-[60%] space-y-6 lg:space-y-8">
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-slate-800 pb-6 lg:pb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-black text-white italic tracking-tighter">受注入力ターミナル</h1>
-              <p className="text-[10px] text-orange-500 font-bold tracking-[0.2em] mt-2">BOM連動型受注管理システム / Ver 4.0</p>
+              <h1 className="text-2xl lg:text-3xl font-black text-white italic tracking-tighter">受注入力ターミナル</h1>
+              <p className="text-[10px] text-orange-500 font-bold tracking-[0.2em] mt-1 lg:mt-2">BOM連動型受注管理システム / Ver 4.0</p>
             </div>
-            <div className="text-right">
-              <span className="text-[10px] text-slate-600 block font-black">受注伝票番号</span>
+            <div className="text-left sm:text-right">
+              <span className="text-[10px] text-slate-600 block font-black uppercase">Order Code</span>
               <span className="text-xs font-mono text-slate-400">{orderHeader.order_code}</span>
             </div>
           </header>
 
-          <section aria-label="基本情報" className="grid md:grid-cols-2 gap-6">
+          <section aria-label="基本情報" className="grid sm:grid-cols-2 gap-4 lg:gap-6">
             <div className="relative" ref={destRef}>
-              <label id="dest-label" className="text-[10px] font-black text-slate-500 mb-2 block">出荷先</label>
+              <label id="dest-label" className="text-[10px] font-black text-slate-500 mb-2 block uppercase tracking-widest">Destination</label>
               <button
                 type="button"
                 aria-haspopup="listbox"
                 aria-expanded={isDestOpen}
                 aria-labelledby="dest-label"
                 onClick={() => setIsDestOpen(prev => !prev)}
-                className="w-full bg-slate-900 border border-slate-800 p-5 rounded-3xl text-sm text-white flex justify-between items-center cursor-pointer hover:border-orange-500 transition-all shadow-2xl focus:outline-none focus:border-orange-500"
+                className="w-full bg-slate-900 border border-slate-800 p-4 lg:p-5 rounded-2xl lg:rounded-3xl text-sm text-white flex justify-between items-center cursor-pointer hover:border-orange-500 transition-all shadow-2xl focus:outline-none focus:border-orange-500"
               >
                 <span className={orderHeader.destination_code ? 'text-white' : 'text-slate-600'}>{selectedDestName}</span>
                 <ChevronDown size={18} className={`text-slate-600 transition-transform duration-200 ${isDestOpen ? 'rotate-180' : ''}`} />
@@ -426,40 +426,42 @@ export default function Orders() {
             </div>
           </section>
 
-          <section aria-label="受注明細" className="bg-slate-900/50 border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <div className="p-6 bg-slate-800/20 border-b border-slate-800 flex justify-between items-center">
-              <span className="text-[10px] font-black text-slate-500 tracking-widest flex items-center gap-2">
-                <UtensilsCrossed size={14} className="text-orange-500" /> 受注明細
+          <section aria-label="受注明細" className="bg-slate-900/50 border border-slate-800 rounded-3xl lg:rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div className="p-4 lg:p-6 bg-slate-800/20 border-b border-slate-800 flex justify-between items-center">
+              <span className="text-[10px] font-black text-slate-500 tracking-widest flex items-center gap-2 uppercase">
+                <UtensilsCrossed size={14} className="text-orange-500" /> Order Details
               </span>
               <button type="button" onClick={handleAddDetail} className="p-2 bg-slate-800 hover:bg-orange-600 text-white rounded-xl transition-all shadow-lg">
                 <Plus size={20} />
               </button>
             </div>
-            <table className="w-full text-left">
-              <thead className="bg-slate-950/50 text-[10px] text-slate-600 font-black">
-                <tr>
-                  <th className="py-5 px-8">製品名</th>
-                  <th className="py-5 px-8">製造種類（味）</th>
-                  <th className="py-5 px-8 w-32 text-right">数量(ケース)</th>
-                  <th className="py-5 px-8 w-16"><span className="sr-only">操作</span></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                {orderDetails.map(detail => (
-                  <OrderDetailRow
-                    key={detail.id}
-                    detail={detail}
-                    uniqueProductNames={uniqueProductNames}
-                    flavors={getFlavorsForProductName(detail.product_name)}
-                    onProductChange={handleDetailProductChange}
-                    onFlavorChange={handleDetailFlavorChange}
-                    onQuantityChange={handleDetailQuantityChange}
-                    onRemove={handleRemoveDetail}
-                    canRemove={orderDetails.length > 1}
-                  />
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left min-w-[600px]">
+                <thead className="bg-slate-950/50 text-[10px] text-slate-600 font-black uppercase tracking-widest">
+                  <tr>
+                    <th className="py-4 lg:py-5 px-6 lg:px-8">Product</th>
+                    <th className="py-4 lg:py-5 px-6 lg:px-8">Flavor</th>
+                    <th className="py-4 lg:py-5 px-6 lg:px-8 w-32 text-right">Qty (CS)</th>
+                    <th className="py-4 lg:py-5 px-6 lg:px-8 w-16"><span className="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/50">
+                  {orderDetails.map(detail => (
+                    <OrderDetailRow
+                      key={detail.id}
+                      detail={detail}
+                      uniqueProductNames={uniqueProductNames}
+                      flavors={getFlavorsForProductName(detail.product_name)}
+                      onProductChange={handleDetailProductChange}
+                      onFlavorChange={handleDetailFlavorChange}
+                      onQuantityChange={handleDetailQuantityChange}
+                      onRemove={handleRemoveDetail}
+                      canRemove={orderDetails.length > 1}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <button

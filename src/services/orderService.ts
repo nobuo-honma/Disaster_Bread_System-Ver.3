@@ -8,30 +8,19 @@ import { supabase } from '../lib/supabase';
 
 export const orderService = {
   async saveOrder(orderHeader: any, orderDetails: any[]): Promise<void> {
-    // Assuming t_orders holds the order info. In a real app, details would be in a separate table.
-    const { error } = await supabase
-      .from('t_orders')
-      .upsert(orderHeader);
-
+    const { error } = await supabase.from('t_orders').insert({
+      ...orderHeader,
+      // Assuming orderDetails is handled separately or as a JSON column
+    });
     if (error) throw error;
-    // Handle orderDetails if necessary
   },
   async getPendingOrders(): Promise<TOrder[]> {
-    const { data, error } = await supabase
-      .from('t_orders')
-      .select('*')
-      .neq('status', '出荷済')
-      .order('order_date', { ascending: false });
-
+    const { data, error } = await supabase.from('t_orders').select('*').eq('status', '未出荷');
     if (error) throw error;
     return data || [];
   },
   async getOrders(): Promise<TOrder[]> {
-    const { data, error } = await supabase
-      .from('t_orders')
-      .select('*')
-      .order('order_date', { ascending: false });
-
+    const { data, error } = await supabase.from('t_orders').select('*');
     if (error) throw error;
     return data || [];
   }

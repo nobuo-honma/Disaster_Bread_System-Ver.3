@@ -58,20 +58,20 @@ export default function DestinationsMaster() {
     );
 
     return (
-        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-            <div className="flex justify-between items-end border-b border-slate-800 pb-8">
+        <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-in fade-in duration-500">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-slate-800 pb-6 lg:pb-8 gap-4">
                 <div>
                     <div className="flex items-center gap-2 mb-2">
                         <Truck className="text-orange-400" size={16} />
                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Master Data / Trade Partners</span>
                     </div>
-                    <h1 className="text-3xl font-black text-white italic">取引先マスタ</h1>
+                    <h1 className="text-2xl lg:text-3xl font-black text-white italic">取引先マスタ</h1>
                 </div>
             </div>
 
-            <div className="grid gap-8 lg:grid-cols-12">
-                <section className="lg:col-span-4">
-                    <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 sticky top-8 shadow-2xl">
+            <div className="grid gap-6 lg:gap-8 lg:grid-cols-12">
+                <section className="lg:col-span-4 order-2 lg:order-1">
+                    <div className="bg-slate-900/40 border border-slate-800 rounded-2xl lg:rounded-3xl p-4 lg:p-6 lg:sticky lg:top-8 shadow-2xl">
                         <h2 className="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
                             <Plus size={14} /> {editingId ? 'Modify Partner' : 'Add New Partner'}
                         </h2>
@@ -156,7 +156,7 @@ export default function DestinationsMaster() {
 
                             <button
                                 onClick={handleSave}
-                                className="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-2 mt-4"
+                                className="w-full bg-orange-600 hover:bg-orange-500 text-white py-3 lg:py-4 rounded-xl lg:rounded-2xl font-black text-[10px] lg:text-xs uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-2 mt-4"
                             >
                                 <Save size={16} /> {editingId ? 'Update Partner' : 'Register Partner'}
                             </button>
@@ -164,9 +164,9 @@ export default function DestinationsMaster() {
                     </div>
                 </section>
 
-                <section className="lg:col-span-8">
-                    <div className="bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-slate-800 bg-slate-800/20 flex justify-between items-center">
+                <section className="lg:col-span-8 order-1 lg:order-2">
+                    <div className="bg-slate-900/40 border border-slate-800 rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl">
+                        <div className="p-4 lg:p-6 border-b border-slate-800 bg-slate-800/20 flex justify-between items-center">
                             <div className="relative flex-1 max-w-xs">
                                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                                 <input
@@ -177,56 +177,58 @@ export default function DestinationsMaster() {
                             </div>
                         </div>
 
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-slate-800/50 border-b border-slate-800">
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Type / Code</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name / Contact</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Location Info</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-800/50">
-                                {destinations.map((d) => (
-                                    <tr key={d.id} className="group hover:bg-slate-800/20 transition-all">
-                                        <td className="py-6 px-6">
-                                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${d.dest_type === '出荷先' ? 'border-blue-500/30 text-blue-400 bg-blue-500/5' :
-                                                d.dest_type === '仕入先' ? 'border-orange-500/30 text-orange-400 bg-orange-500/5' :
-                                                    'border-slate-500/30 text-slate-400 bg-slate-500/5'
-                                                }`}>
-                                                {d.dest_type}
-                                            </span>
-                                            <div className="text-xs font-mono font-black text-slate-400 mt-2">{d.dest_code}</div>
-                                        </td>
-                                        <td className="py-6 px-6">
-                                            <div className="text-sm font-black text-white group-hover:text-orange-400 transition-colors">{d.dest_name}</div>
-                                            <div className="flex items-center gap-2 mt-1 text-slate-500">
-                                                <User size={10} className="text-slate-600" />
-                                                <span className="text-[10px] font-bold">{d.contact_person || 'N/A'}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-6 px-6">
-                                            <div className="flex items-center gap-2 text-slate-300">
-                                                <MapPin size={12} className="text-slate-600" />
-                                                <span className="text-[11px] font-medium">{d.address || 'Address not set'}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 mt-1 text-slate-500">
-                                                <Phone size={10} className="text-slate-600" />
-                                                <span className="text-[10px] font-mono">{d.phone || '-'}</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-6 px-6 text-center">
-                                            <button
-                                                onClick={() => { setEditingId(d.id); setFormData(d); }}
-                                                className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-600 transition-all"
-                                            >
-                                                <Edit3 size={14} />
-                                            </button>
-                                        </td>
+                        <div className="overflow-x-auto custom-scrollbar">
+                            <table className="w-full text-left min-w-[700px]">
+                                <thead>
+                                    <tr className="bg-slate-800/50 border-b border-slate-800">
+                                        <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Type / Code</th>
+                                        <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name / Contact</th>
+                                        <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">Location Info</th>
+                                        <th className="py-4 px-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-800/50">
+                                    {destinations.map((d) => (
+                                        <tr key={d.id} className="group hover:bg-slate-800/20 transition-all">
+                                            <td className="py-6 px-6">
+                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border ${d.dest_type === '出荷先' ? 'border-blue-500/30 text-blue-400 bg-blue-500/5' :
+                                                    d.dest_type === '仕入先' ? 'border-orange-500/30 text-orange-400 bg-orange-500/5' :
+                                                        'border-slate-500/30 text-slate-400 bg-slate-500/5'
+                                                    }`}>
+                                                    {d.dest_type}
+                                                </span>
+                                                <div className="text-xs font-mono font-black text-slate-400 mt-2">{d.dest_code}</div>
+                                            </td>
+                                            <td className="py-6 px-6">
+                                                <div className="text-sm font-black text-white group-hover:text-orange-400 transition-colors">{d.dest_name}</div>
+                                                <div className="flex items-center gap-2 mt-1 text-slate-500">
+                                                    <User size={10} className="text-slate-600" />
+                                                    <span className="text-[10px] font-bold">{d.contact_person || 'N/A'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-6 px-6">
+                                                <div className="flex items-center gap-2 text-slate-300">
+                                                    <MapPin size={12} className="text-slate-600" />
+                                                    <span className="text-[11px] font-medium">{d.address || 'Address not set'}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 mt-1 text-slate-500">
+                                                    <Phone size={10} className="text-slate-600" />
+                                                    <span className="text-[10px] font-mono">{d.phone || '-'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-6 px-6 text-center">
+                                                <button
+                                                    onClick={() => { setEditingId(d.id); setFormData(d); }}
+                                                    className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-600 transition-all"
+                                                >
+                                                    <Edit3 size={14} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
             </div>

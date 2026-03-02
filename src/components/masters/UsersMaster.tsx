@@ -50,24 +50,24 @@ export default function UsersMaster() {
   if (loading) return <div className="p-10 text-center text-slate-500 font-black animate-pulse uppercase tracking-[0.3em] text-xs">Authenticating User Registry...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
-      <div className="flex justify-between items-end border-b border-slate-800 pb-8">
+    <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-in fade-in duration-700">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-slate-800 pb-6 lg:pb-8 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Users className="text-purple-400" size={16} />
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Master Data / Access Control</span>
           </div>
-          <h1 className="text-3xl font-black text-white italic">ユーザーマスタ <span className="text-slate-600 text-xl font-light">/ Users</span></h1>
+          <h1 className="text-2xl lg:text-3xl font-black text-white italic">ユーザーマスタ <span className="text-slate-600 text-lg lg:text-xl font-light">/ Users</span></h1>
         </div>
         <button
           onClick={handleAddNew}
-          className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-purple-900/20"
+          className="w-full sm:w-auto bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl lg:rounded-2xl font-black text-[10px] lg:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-900/20"
         >
           <Plus size={16} /> Add New User
         </button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 lg:gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {users.map((u) => (
           <div key={u.id} className={`bg-slate-900/40 border rounded-3xl p-6 shadow-xl transition-all duration-300 ${editingId === u.id ? 'border-purple-500/50 ring-1 ring-purple-500/20' : 'border-slate-800 hover:border-slate-700'}`}>
             {editingId === u.id ? (
@@ -139,7 +139,7 @@ export default function UsersMaster() {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4 flex-1">
                   <div>
                     <h3 className="text-lg font-black text-white tracking-tight">{u.username}</h3>
@@ -148,7 +148,7 @@ export default function UsersMaster() {
                       <span className="text-xs font-medium">{u.email}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-4 pt-4 border-t border-slate-800/50">
                     <div className="flex items-center gap-2">
                       <Shield size={12} className="text-purple-500" />

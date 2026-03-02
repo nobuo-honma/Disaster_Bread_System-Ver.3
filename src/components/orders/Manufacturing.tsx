@@ -43,8 +43,8 @@ function Toast({ toasts, onRemove }: { toasts: ToastMsg[]; onRemove: (id: number
           flex items-center gap-3 px-4 py-3 rounded-xl border text-[11px] font-bold
           shadow-2xl backdrop-blur pointer-events-auto
           ${t.type === 'success' ? 'bg-emerald-950 border-emerald-700/60 text-emerald-300' : ''}
-          ${t.type === 'error'   ? 'bg-rose-950   border-rose-700/60   text-rose-300'      : ''}
-          ${t.type === 'warning' ? 'bg-amber-950  border-amber-700/60  text-amber-300'     : ''}
+          ${t.type === 'error' ? 'bg-rose-950   border-rose-700/60   text-rose-300' : ''}
+          ${t.type === 'warning' ? 'bg-amber-950  border-amber-700/60  text-amber-300' : ''}
         `}>
           {t.type === 'success' ? <CheckCircle2 size={13} /> : <AlertTriangle size={13} />}
           <span>{t.message}</span>
@@ -58,9 +58,9 @@ function Toast({ toasts, onRemove }: { toasts: ToastMsg[]; onRemove: (id: number
 // ─── ステータスバッジ ──────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
   const cls: Record<string, string> = {
-    '計画':   'bg-slate-800    text-slate-400  border-slate-700',
+    '計画': 'bg-slate-800    text-slate-400  border-slate-700',
     '製造中': 'bg-amber-950   text-amber-400  border-amber-800',
-    '完了':   'bg-emerald-950 text-emerald-400 border-emerald-800',
+    '完了': 'bg-emerald-950 text-emerald-400 border-emerald-800',
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black border ${cls[status] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
@@ -83,9 +83,9 @@ function StatusPopover({ current, onSelect, onClose }: {
   }, [onClose]);
 
   const opts: { s: string; cls: string }[] = [
-    { s: '計画',   cls: 'hover:bg-slate-700/60  text-slate-300' },
+    { s: '計画', cls: 'hover:bg-slate-700/60  text-slate-300' },
     { s: '製造中', cls: 'hover:bg-amber-900/50  text-amber-300' },
-    { s: '完了',   cls: 'hover:bg-emerald-900/50 text-emerald-300' },
+    { s: '完了', cls: 'hover:bg-emerald-900/50 text-emerald-300' },
   ];
   return (
     <div ref={ref} className="absolute z-50 top-full left-0 mt-1 w-28 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden"
@@ -104,15 +104,15 @@ function StatusPopover({ current, onSelect, onClose }: {
 
 // ─── ロット番号生成ロジック ───────────────────────────────────────
 const DAY_CODES = [
-  'ア','イ','ウ','エ','オ',   // 1〜5
-  'カ','キ','ク','ケ','コ',   // 6〜10
-  'サ','シ','ス','セ','ソ',   // 11〜15
-  'ナ','ニ','ヌ','ネ','ノ',   // 16〜20
-  'ハ','ヒ','フ','ヘ','ホ',   // 21〜25
-  'マ','ミ','ム','メ','モ',   // 26〜30
+  'ア', 'イ', 'ウ', 'エ', 'オ',   // 1〜5
+  'カ', 'キ', 'ク', 'ケ', 'コ',   // 6〜10
+  'サ', 'シ', 'ス', 'セ', 'ソ',   // 11〜15
+  'ナ', 'ニ', 'ヌ', 'ネ', 'ノ',   // 16〜20
+  'ハ', 'ヒ', 'フ', 'ヘ', 'ホ',   // 21〜25
+  'マ', 'ミ', 'ム', 'メ', 'モ',   // 26〜30
   'ヤ',                       // 31
 ];
-const MONTH_CODES = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+const MONTH_CODES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
 
 function getDayCode(day: number): string {
   return DAY_CODES[day - 1];
@@ -126,12 +126,12 @@ function generateLotNumber(productCode: string, date: string, serialSuffix = '00
   if (!date) return '';
 
   const [yearStr, monthStr, dayStr] = date.split('-');
-  const yy    = yearStr.slice(-2);
+  const yy = yearStr.slice(-2);
   const month = parseInt(monthStr, 10);
-  const day   = parseInt(dayStr, 10);
-  const dd    = String(day).padStart(2, '0');
-  const mc    = getMonthCode(month);
-  const dc    = getDayCode(day);
+  const day = parseInt(dayStr, 10);
+  const dd = String(day).padStart(2, '0');
+  const mc = getMonthCode(month);
+  const dc = getDayCode(day);
 
   const code = productCode.toUpperCase();
 
@@ -293,9 +293,9 @@ function PlanCard({ entry, onStatusChange, onDragStart }: PlanCardProps) {
   const [showPopover, setShowPopover] = useState(false);
 
   const borderCls =
-    plan.status === '完了'   ? 'border-emerald-700/60 border-l-emerald-500 bg-emerald-950/20' :
-    plan.status === '製造中' ? 'border-amber-700/60   border-l-amber-500   bg-amber-950/20' :
-                               'border-slate-700/60   border-l-orange-500  bg-slate-900/60';
+    plan.status === '完了' ? 'border-emerald-700/60 border-l-emerald-500 bg-emerald-950/20' :
+      plan.status === '製造中' ? 'border-amber-700/60   border-l-amber-500   bg-amber-950/20' :
+        'border-slate-700/60   border-l-orange-500  bg-slate-900/60';
 
   return (
     <div draggable onDragStart={e => { e.stopPropagation(); onDragStart(e, entry); }}
@@ -331,19 +331,19 @@ function PlanCard({ entry, onStatusChange, onDragStart }: PlanCardProps) {
 
 // ─── メインコンポーネント ─────────────────────────────────────────
 export default function Manufacturing() {
-  const [viewMode, setViewMode]         = useState<'editor' | 'calendar'>('editor');
-  const [orders, setOrders]             = useState<TOrder[]>([]);
-  const [products, setProducts]         = useState<MProduct[]>([]);
+  const [viewMode, setViewMode] = useState<'editor' | 'calendar'>('editor');
+  const [orders, setOrders] = useState<TOrder[]>([]);
+  const [products, setProducts] = useState<MProduct[]>([]);
   const [destinations, setDestinations] = useState<MDestination[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<TOrder | null>(null);
-  const [loading, setLoading]           = useState(true);
+  const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [plans, setPlans]               = useState<TMfgPlan[]>([]);
-  const [allPlans, setAllPlans]         = useState<Record<string, TMfgPlan[]>>({});
+  const [plans, setPlans] = useState<TMfgPlan[]>([]);
+  const [allPlans, setAllPlans] = useState<Record<string, TMfgPlan[]>>({});
 
-  const today    = useMemo(() => new Date(), []);
+  const today = useMemo(() => new Date(), []);
   const todayStr = useMemo(() => today.toISOString().slice(0, 10), [today]);
-  const [calYear,  setCalYear]  = useState(today.getFullYear());
+  const [calYear, setCalYear] = useState(today.getFullYear());
   const [calMonth, setCalMonth] = useState(today.getMonth());
 
   const [dragging, setDragging] = useState<CalendarEntry | null>(null);
@@ -394,7 +394,7 @@ export default function Manufacturing() {
     if (!selectedOrder || !currentProduct) return { totalWeight: 0, plannedWeight: 0, remainingWeight: 0, progress: 0 };
     // Assuming 1 CS = unit_cs_to_p, and we need units_per_kg which is not in MProduct. Let's assume 1kg = 1 unit for now or add to type.
     // For simplicity, let's use a fixed ratio if not available.
-    const unitsPerKg = 1; 
+    const unitsPerKg = 1;
     const totalWeight = (selectedOrder.quantity_cs * currentProduct.unit_cs_to_p) / unitsPerKg;
     const plannedWeight = plans.reduce((s, p) => s + (Number(p.amount_kg) || 0), 0);
     return { totalWeight, plannedWeight, remainingWeight: totalWeight - plannedWeight, progress: totalWeight > 0 ? Math.min((plannedWeight / totalWeight) * 100, 100) : 0 };
@@ -407,7 +407,7 @@ export default function Manufacturing() {
   }, [currentProduct]);
 
   const destName = useCallback((code: string) => destinations.find(d => d.dest_code === code)?.dest_name || code, [destinations]);
-  const flavor   = (remarks: string) => remarks?.match(/味:([^|]+)/)?.[1]?.trim() || '通常';
+  const flavor = (remarks: string) => remarks?.match(/味:([^|]+)/)?.[1]?.trim() || '通常';
   const orderStatus = (code: string): string | null => {
     const ps = allPlans[code]; if (!ps?.length) return null;
     if (ps.every(p => p.status === '完了')) return '完了';
@@ -472,11 +472,11 @@ export default function Manufacturing() {
     try {
       await manufacturingService.saveProductionResult({
         product_code: resultModal.order.product_code,
-        mfg_lot:      input.mfg_lot,
-        expiry_date:  input.expiry_date,
-        stock_cs:     input.stock_cs,
-        stock_p:      input.stock_p,
-        remarks:      input.remarks,
+        mfg_lot: input.mfg_lot,
+        expiry_date: input.expiry_date,
+        stock_cs: input.stock_cs,
+        stock_p: input.stock_p,
+        remarks: input.remarks,
       });
       addToast('success', `製品在庫に登録しました（${input.mfg_lot}）`);
     } catch { addToast('error', '製品在庫の登録に失敗しました'); }
@@ -485,7 +485,7 @@ export default function Manufacturing() {
 
   const calendarDays = useMemo(() => {
     const first = new Date(calYear, calMonth, 1).getDay();
-    const last  = new Date(calYear, calMonth + 1, 0).getDate();
+    const last = new Date(calYear, calMonth + 1, 0).getDate();
     return [
       ...Array<null>(first).fill(null),
       ...Array.from({ length: last }, (_, i) =>
@@ -521,46 +521,46 @@ export default function Manufacturing() {
       <Toast toasts={toasts} onRemove={removeToast} />
       {resultModal && <ProductionResultModal order={resultModal.order} plan={resultModal.plan} onSave={handleSaveResult} onCancel={() => setResultModal(null)} />}
 
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-8">
-        <div className="space-y-1">
-          <div className="flex bg-slate-900 p-1 rounded-md border border-slate-800 gap-0.5 mb-2">
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 border-b border-slate-800/60 pb-6 lg:pb-8">
+        <div className="space-y-4 w-full lg:w-auto">
+          <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 gap-0.5">
             {(['editor', 'calendar'] as const).map(m => (
               <button key={m} onClick={() => setViewMode(m)}
-                className={`px-8 py-2 rounded text-[10px] font-black tracking-wider transition-all ${viewMode === m ? 'bg-orange-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>
+                className={`flex-1 lg:flex-none px-6 lg:px-8 py-2.5 rounded-lg text-[10px] font-black tracking-wider transition-all ${viewMode === m ? 'bg-orange-600 text-white shadow-lg shadow-orange-900/20' : 'text-slate-500 hover:text-slate-300'}`}>
                 {m === 'editor' ? '計画編集' : 'カレンダー'}
               </button>
             ))}
           </div>
-          <h1 className="text-4xl font-black tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 italic">
-            製造計画 <span className="text-slate-600 text-xl font-light">/ Manufacturing</span>
+          <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 italic">
+            製造計画 <span className="text-slate-600 text-lg lg:text-xl font-light">/ Manufacturing</span>
           </h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 w-full lg:w-auto">
           {viewMode === 'editor' && selectedOrder && (
             <button onClick={handleSavePlans} disabled={isSubmitting}
-              className="flex items-center gap-2 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 px-6 py-3 rounded-2xl text-[10px] font-black transition-colors shadow-lg shadow-orange-900/20">
+              className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 px-6 py-3 rounded-xl lg:rounded-2xl text-[10px] font-black transition-colors shadow-lg shadow-orange-900/20">
               {isSubmitting ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
               {isSubmitting ? '保存中...' : 'DB 保存'}
             </button>
           )}
-          <button onClick={() => window.print()} className="p-3 rounded-2xl border border-slate-800 bg-slate-900 hover:bg-slate-800 transition-colors text-slate-400 hover:text-white">
+          <button onClick={() => window.print()} className="p-3 rounded-xl lg:rounded-2xl border border-slate-800 bg-slate-900 hover:bg-slate-800 transition-colors text-slate-400 hover:text-white">
             <Printer size={18} />
           </button>
         </div>
       </header>
 
-      <div className="grid lg:grid-cols-12 gap-8">
+      <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
         {viewMode === 'editor' && (
-          <aside className="lg:col-span-4 space-y-4">
-            <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 shadow-2xl">
+          <aside className="lg:col-span-4 space-y-4 order-2 lg:order-1">
+            <div className="bg-slate-900/40 border border-slate-800 rounded-2xl lg:rounded-3xl p-4 lg:p-6 shadow-2xl">
               <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">受注一覧</h2>
-              <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+              <div className="space-y-2 max-h-[400px] lg:max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
                 {orders.map(o => {
                   const st = orderStatus(o.order_code);
                   const selected = selectedOrder?.id === o.id;
                   return (
                     <button key={o.id} onClick={() => setSelectedOrder(o)}
-                      className={`w-full text-left p-4 rounded-2xl border transition-all ${selected ? 'bg-orange-500/10 border-orange-500/50 shadow-lg shadow-orange-900/10' : 'bg-slate-950/50 border-slate-800 hover:border-slate-700'}`}>
+                      className={`w-full text-left p-4 rounded-xl lg:rounded-2xl border transition-all ${selected ? 'bg-orange-500/10 border-orange-500/50 shadow-lg shadow-orange-900/10' : 'bg-slate-950/50 border-slate-800 hover:border-slate-700'}`}>
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-[9px] font-mono text-slate-600">{o.request_delivery_date}</span>
                         <span className="text-[10px] font-black text-orange-400">{o.quantity_cs} cs</span>
@@ -580,36 +580,36 @@ export default function Manufacturing() {
           </aside>
         )}
 
-        <main className={viewMode === 'editor' ? 'lg:col-span-8' : 'lg:col-span-12'}>
+        <main className={`${viewMode === 'editor' ? 'lg:col-span-8 order-1 lg:order-2' : 'lg:col-span-12'} min-w-0`}>
           {viewMode === 'editor' ? (
             !selectedOrder ? (
-              <div className="h-full min-h-[500px] border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center text-slate-600 space-y-4">
+              <div className="h-full min-h-[400px] lg:min-h-[500px] border-2 border-dashed border-slate-800 rounded-2xl lg:rounded-3xl flex flex-col items-center justify-center text-slate-600 space-y-4">
                 <Factory size={48} className="opacity-20" />
                 <p className="text-xs font-black uppercase tracking-widest opacity-40">受注を選択してください</p>
               </div>
             ) : (
               <div className="space-y-6">
-                <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                  <div className="flex justify-between items-start mb-8">
+                <div className="bg-slate-900/40 border border-slate-800 rounded-2xl lg:rounded-3xl p-6 lg:p-8 shadow-2xl">
+                  <div className="flex flex-col sm:flex-row justify-between items-start mb-6 lg:mb-8 gap-4">
                     <div>
-                      <h2 className="text-2xl font-black text-white mb-1">{flavor(selectedOrder.remarks || '')}</h2>
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{selectedOrder.product_name_at_order}</p>
+                      <h2 className="text-xl lg:text-2xl font-black text-white mb-1">{flavor(selectedOrder.remarks || '')}</h2>
+                      <p className="text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest">{selectedOrder.product_name_at_order}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <p className="text-[9px] text-slate-600 uppercase mb-1">出荷先</p>
                       <p className="text-sm font-bold text-slate-300">{destName(selectedOrder.destination_code)}</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-4 gap-4 mb-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
                     {[
                       { label: '受注数量', value: `${selectedOrder.quantity_cs} cs`, alert: false },
                       { label: '必要総量', value: `${metrics.totalWeight.toFixed(0)} kg`, alert: false },
                       { label: '計画済み', value: `${metrics.plannedWeight.toFixed(0)} kg`, alert: false },
-                      { label: '残り',     value: `${Math.max(0, metrics.remainingWeight).toFixed(0)} kg`, alert: metrics.remainingWeight < 0 },
+                      { label: '残り', value: `${Math.max(0, metrics.remainingWeight).toFixed(0)} kg`, alert: metrics.remainingWeight < 0 },
                     ].map(m => (
-                      <div key={m.label} className={`bg-slate-950/50 rounded-2xl p-4 border ${m.alert ? 'border-rose-700/60' : 'border-slate-800'}`}>
-                        <p className="text-[9px] text-slate-600 uppercase mb-1">{m.label}</p>
-                        <p className={`text-xl font-black font-mono ${m.alert ? 'text-rose-400' : 'text-white'}`}>{m.value}</p>
+                      <div key={m.label} className={`bg-slate-950/50 rounded-xl lg:rounded-2xl p-3 lg:p-4 border ${m.alert ? 'border-rose-700/60' : 'border-slate-800'}`}>
+                        <p className="text-[8px] lg:text-[9px] text-slate-600 uppercase mb-1">{m.label}</p>
+                        <p className={`text-sm lg:text-xl font-black font-mono ${m.alert ? 'text-rose-400' : 'text-white'}`}>{m.value}</p>
                       </div>
                     ))}
                   </div>
@@ -618,7 +618,7 @@ export default function Manufacturing() {
                       <span className="flex items-center gap-1"><Gauge size={12} /> 計画進捗率</span>
                       <span className="font-mono text-slate-400">{metrics.progress.toFixed(1)}%</span>
                     </div>
-                    <div className="h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                    <div className="h-2.5 lg:h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
                       <motion.div initial={{ width: 0 }} animate={{ width: `${metrics.progress}%` }}
                         className={`h-full rounded-full transition-all duration-700 ${metrics.remainingWeight <= 0 ? 'bg-emerald-500' : metrics.progress >= 80 ? 'bg-amber-500' : 'bg-orange-600'}`} />
                     </div>
@@ -627,33 +627,45 @@ export default function Manufacturing() {
 
                 <div className="space-y-3">
                   {plans.map((p, i) => (
-                    <div key={i} className={`grid grid-cols-12 gap-3 border rounded-2xl p-4 items-center transition-all bg-slate-900/40
-                      ${p.status==='完了'?'border-emerald-800/50 bg-emerald-950/10':p.status==='製造中'?'border-amber-800/50 bg-amber-950/10':'border-slate-800 hover:border-slate-700'}`}>
-                      <input type="date" value={p.scheduled_date}
-                        onChange={e => setPlans(prev => prev.map((x, j) => j === i ? { ...x, scheduled_date: e.target.value } : x))}
-                        className="col-span-3 bg-slate-950 border border-slate-800 px-4 py-2.5 rounded-xl text-xs font-mono text-slate-300 outline-none focus:border-orange-600" />
-                      <input type="number" value={p.amount_kg || ''} min={0} placeholder="0"
-                        onChange={e => setPlans(prev => prev.map((x, j) => j === i ? { ...x, amount_kg: Number(e.target.value) } : x))}
-                        className="col-span-2 bg-slate-950 border border-slate-800 px-4 py-2.5 rounded-xl text-xs font-mono text-orange-400 outline-none focus:border-orange-600 text-right" />
-                      <div className="col-span-1 text-center">
+                    <div key={i} className={`flex flex-col sm:grid sm:grid-cols-12 gap-3 border rounded-xl lg:rounded-2xl p-4 items-center transition-all bg-slate-900/40
+                      ${p.status === '完了' ? 'border-emerald-800/50 bg-emerald-950/10' : p.status === '製造中' ? 'border-amber-800/50 bg-amber-950/10' : 'border-slate-800 hover:border-slate-700'}`}>
+                      <div className="w-full sm:col-span-3">
+                        <label className="text-[8px] font-black text-slate-600 uppercase mb-1 block sm:hidden">製造日</label>
+                        <input type="date" value={p.scheduled_date}
+                          onChange={e => setPlans(prev => prev.map((x, j) => j === i ? { ...x, scheduled_date: e.target.value } : x))}
+                          className="w-full bg-slate-950 border border-slate-800 px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-xs font-mono text-slate-300 outline-none focus:border-orange-600" />
+                      </div>
+                      <div className="w-full sm:col-span-2">
+                        <label className="text-[8px] font-black text-slate-600 uppercase mb-1 block sm:hidden">重量 (kg)</label>
+                        <input type="number" value={p.amount_kg || ''} min={0} placeholder="0"
+                          onChange={e => setPlans(prev => prev.map((x, j) => j === i ? { ...x, amount_kg: Number(e.target.value) } : x))}
+                          className="w-full bg-slate-950 border border-slate-800 px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-xs font-mono text-orange-400 outline-none focus:border-orange-600 text-right" />
+                      </div>
+                      <div className="hidden sm:block sm:col-span-1 text-center">
                         <span className="text-[10px] font-mono text-slate-500">{Number(p.amount_kg) > 0 ? `${calcCs(p.amount_kg)}cs` : '—'}</span>
                       </div>
-                      <select value={p.status}
-                        onChange={e => setPlans(prev => prev.map((x, j) => j === i ? { ...x, status: e.target.value } : x))}
-                        className="col-span-2 bg-slate-950 border border-slate-800 px-3 py-2.5 rounded-xl text-xs outline-none focus:border-orange-600 text-slate-300">
-                        <option>計画</option><option>製造中</option><option>完了</option>
-                      </select>
-                      <input type="text" value={p.remarks || ''} placeholder="現場指示・メモ"
-                        onChange={e => setPlans(prev => prev.map((x, j) => j === i ? { ...x, remarks: e.target.value } : x))}
-                        className="col-span-3 bg-slate-950 border border-slate-800 px-4 py-2.5 rounded-xl text-xs text-slate-400 placeholder:text-slate-700 outline-none focus:border-orange-600" />
+                      <div className="w-full sm:col-span-2">
+                        <label className="text-[8px] font-black text-slate-600 uppercase mb-1 block sm:hidden">ステータス</label>
+                        <select value={p.status}
+                          onChange={e => setPlans(prev => prev.map((x, j) => j === i ? { ...x, status: e.target.value } : x))}
+                          className="w-full bg-slate-950 border border-slate-800 px-3 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-xs outline-none focus:border-orange-600 text-slate-300">
+                          <option>計画</option><option>製造中</option><option>完了</option>
+                        </select>
+                      </div>
+                      <div className="w-full sm:col-span-3">
+                        <label className="text-[8px] font-black text-slate-600 uppercase mb-1 block sm:hidden">備考</label>
+                        <input type="text" value={p.remarks || ''} placeholder="現場指示・メモ"
+                          onChange={e => setPlans(prev => prev.map((x, j) => j === i ? { ...x, remarks: e.target.value } : x))}
+                          className="w-full bg-slate-950 border border-slate-800 px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg lg:rounded-xl text-xs text-slate-400 placeholder:text-slate-700 outline-none focus:border-orange-600" />
+                      </div>
                       <button onClick={() => setPlans(prev => prev.filter((_, j) => j !== i))}
-                        className="col-span-1 flex justify-center text-slate-700 hover:text-rose-500 transition-colors">
+                        className="w-full sm:w-auto sm:col-span-1 flex justify-center py-2 sm:py-0 text-slate-700 hover:text-rose-500 transition-colors">
                         <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
                   <button onClick={() => setPlans(prev => [...prev, { id: '', plan_code: '', order_code: selectedOrder.order_code, product_code: selectedOrder.product_code, scheduled_date: selectedOrder.request_delivery_date, amount_kg: 0, amount_cs: 0, status: '計画', remarks: '' }])}
-                    className="w-full py-4 border-2 border-dashed border-slate-800 rounded-2xl text-[10px] font-black text-slate-600 hover:bg-slate-900/40 hover:text-slate-400 transition-all flex items-center justify-center gap-2">
+                    className="w-full py-4 border-2 border-dashed border-slate-800 rounded-xl lg:rounded-2xl text-[10px] font-black text-slate-600 hover:bg-slate-900/40 hover:text-slate-400 transition-all flex items-center justify-center gap-2">
                     <Plus size={14} /> 計画行を追加
                   </button>
                 </div>
@@ -661,36 +673,38 @@ export default function Manufacturing() {
             )
           ) : (
             <div className="space-y-6">
-              <header className="flex justify-between items-center">
-                <div className="flex items-center bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                  <button onClick={prevMonth} className="px-5 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-all font-black text-lg border-r border-slate-800">‹</button>
-                  <span className="px-8 py-3 text-sm font-black text-white font-mono tracking-wider min-w-[160px] text-center">{calYear}年 {calMonth + 1}月</span>
-                  <button onClick={nextMonth} className="px-5 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-all font-black text-lg border-l border-slate-800">›</button>
+              <header className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="flex items-center bg-slate-900 border border-slate-800 rounded-xl lg:rounded-2xl overflow-hidden w-full sm:w-auto">
+                  <button onClick={prevMonth} className="flex-1 sm:flex-none px-5 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-all font-black text-lg border-r border-slate-800">‹</button>
+                  <span className="flex-1 sm:flex-none px-6 lg:px-8 py-3 text-xs lg:text-sm font-black text-white font-mono tracking-wider min-w-[140px] lg:min-w-[160px] text-center whitespace-nowrap">{calYear}年 {calMonth + 1}月</span>
+                  <button onClick={nextMonth} className="flex-1 sm:flex-none px-5 py-3 text-slate-400 hover:text-white hover:bg-slate-800 transition-all font-black text-lg border-l border-slate-800">›</button>
                 </div>
               </header>
-              <div className="grid grid-cols-7 gap-1">
-                {['日','月','火','水','木','金','土'].map((d, i) => (
-                  <div key={d} className={`text-center py-3 text-[10px] font-black tracking-widest rounded-t-xl ${i===0?'text-rose-400 bg-rose-950/20':i===6?'text-blue-400 bg-blue-950/20':'text-slate-500 bg-slate-900/40'}`}>{d}</div>
-                ))}
-                {calendarDays.map((date, idx) => {
-                  if (!date) return <div key={`e-${idx}`} className="min-h-[140px] bg-slate-950/10 rounded-xl" />;
-                  const dow = new Date(date).getDay();
-                  const entries = calEntries[date] ?? [];
-                  const isToday = date === todayStr;
-                  const isDrop = dragOver === date;
-                  return (
-                    <div key={date} onDragOver={e => { e.preventDefault(); setDragOver(date); }} onDragLeave={() => setDragOver(null)} onDrop={e => handleDrop(e, date)}
-                      className={`min-h-[140px] p-2 border rounded-xl transition-all duration-150 ${dow===0?'bg-rose-950/5 border-rose-900/20':dow===6?'bg-blue-950/5 border-blue-900/20':'bg-slate-950/20 border-slate-800/40'} ${isToday ? 'ring-2 ring-orange-500/30 border-orange-500/30' : ''} ${isDrop ? 'ring-2 ring-blue-500 bg-blue-950/20' : ''}`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`text-sm font-black font-mono ${isToday?'text-orange-400':dow===0?'text-rose-600':dow===6?'text-blue-600':'text-slate-500'}`}>{date.split('-')[2]}</span>
-                        {entries.length > 0 && <span className="text-[9px] text-slate-600 font-mono">{entries.length}件</span>}
+              <div className="overflow-x-auto custom-scrollbar pb-4">
+                <div className="grid grid-cols-7 gap-1 min-w-[700px]">
+                  {['日', '月', '火', '水', '木', '金', '土'].map((d, i) => (
+                    <div key={d} className={`text-center py-3 text-[10px] font-black tracking-widest rounded-t-xl ${i === 0 ? 'text-rose-400 bg-rose-950/20' : i === 6 ? 'text-blue-400 bg-blue-950/20' : 'text-slate-500 bg-slate-900/40'}`}>{d}</div>
+                  ))}
+                  {calendarDays.map((date, idx) => {
+                    if (!date) return <div key={`e-${idx}`} className="min-h-[120px] lg:min-h-[140px] bg-slate-950/10 rounded-xl" />;
+                    const dow = new Date(date).getDay();
+                    const entries = calEntries[date] ?? [];
+                    const isToday = date === todayStr;
+                    const isDrop = dragOver === date;
+                    return (
+                      <div key={date} onDragOver={e => { e.preventDefault(); setDragOver(date); }} onDragLeave={() => setDragOver(null)} onDrop={e => handleDrop(e, date)}
+                        className={`min-h-[120px] lg:min-h-[140px] p-2 border rounded-xl transition-all duration-150 ${dow === 0 ? 'bg-rose-950/5 border-rose-900/20' : dow === 6 ? 'bg-blue-950/5 border-blue-900/20' : 'bg-slate-950/20 border-slate-800/40'} ${isToday ? 'ring-2 ring-orange-500/30 border-orange-500/30' : ''} ${isDrop ? 'ring-2 ring-blue-500 bg-blue-950/20' : ''}`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-xs lg:text-sm font-black font-mono ${isToday ? 'text-orange-400' : dow === 0 ? 'text-rose-600' : dow === 6 ? 'text-blue-600' : 'text-slate-500'}`}>{date.split('-')[2]}</span>
+                          {entries.length > 0 && <span className="text-[8px] lg:text-[9px] text-slate-600 font-mono">{entries.length}件</span>}
+                        </div>
+                        <div className="space-y-1">
+                          {entries.map((entry, ei) => <PlanCard key={ei} entry={entry} onStatusChange={handleStatusChange} onDragStart={handleDragStart} />)}
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        {entries.map((entry, ei) => <PlanCard key={ei} entry={entry} onStatusChange={handleStatusChange} onDragStart={handleDragStart} />)}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

@@ -33,12 +33,12 @@ export default function Shipping() {
     const stocks = await inventoryService.getProductStocks();
     const relevantStocks = stocks.filter(s => s.product_code === order.product_code);
     setProductStocks(relevantStocks);
-    
+
     // Auto-allocate based on FIFO (expiry date)
     const sortedStocks = [...relevantStocks].sort((a, b) => a.expiry_date.localeCompare(b.expiry_date));
     let remaining = order.quantity_cs;
     const newAllocations: Record<string, number> = {};
-    
+
     for (const stock of sortedStocks) {
       if (remaining <= 0) break;
       const allocate = Math.min(remaining, stock.stock_cs);
@@ -56,7 +56,7 @@ export default function Shipping() {
     if (totalAllocated < selectedOrder.quantity_cs) {
       if (!confirm('在庫が不足していますが、出荷を確定しますか？')) return;
     }
-    
+
     await inventoryService.confirmShipping(selectedOrder, allocations, shippingDate);
     alert('出荷を確定しました');
     setSelectedOrder(null);
@@ -66,34 +66,34 @@ export default function Shipping() {
   if (loading) return <div className="p-10 text-center text-slate-500 font-black animate-pulse uppercase tracking-[0.3em] text-xs">Synchronizing Logistics Stream...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
-      <div className="flex justify-between items-end border-b border-slate-800 pb-8">
+    <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-in fade-in duration-700">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-slate-800 pb-6 lg:pb-8 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Truck className="text-amber-400" size={16} />
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Operations / Outbound Logistics</span>
           </div>
-          <h1 className="text-3xl font-black text-white italic">出荷管理 <span className="text-slate-600 text-xl font-light">/ Shipping</span></h1>
+          <h1 className="text-2xl lg:text-3xl font-black text-white italic">出荷管理 <span className="text-slate-600 text-lg lg:text-xl font-light">/ Shipping</span></h1>
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-12">
+      <div className="grid gap-6 lg:gap-8 lg:grid-cols-12">
         {/* LEFT: PENDING ORDERS */}
-        <aside className="lg:col-span-5 space-y-4">
-          <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
+        <aside className="lg:col-span-5 space-y-4 order-2 lg:order-1">
+          <div className="bg-slate-900/40 border border-slate-800 rounded-2xl lg:rounded-3xl p-4 lg:p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4 lg:mb-6">
               <h2 className="text-[10px] font-black text-amber-400 uppercase tracking-[0.2em] flex items-center gap-2">
                 <Search size={14} /> Pending Orders
               </h2>
               <span className="text-[10px] font-bold text-slate-500 bg-slate-800 px-2 py-1 rounded">{pendingOrders.length} ORDERS</span>
             </div>
-            
-            <div className="space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
+
+            <div className="space-y-3 max-h-[400px] lg:max-h-[600px] overflow-y-auto custom-scrollbar pr-2">
               {pendingOrders.map((order) => (
                 <button
                   key={order.id}
                   onClick={() => handleSelectOrder(order)}
-                  className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 group ${selectedOrder?.id === order.id
+                  className={`w-full text-left p-4 lg:p-5 rounded-xl lg:rounded-2xl border transition-all duration-300 group ${selectedOrder?.id === order.id
                     ? 'bg-amber-500/10 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]'
                     : 'bg-slate-950/50 border-slate-800 hover:border-slate-600'
                     }`}
@@ -104,7 +104,7 @@ export default function Shipping() {
                   </div>
                   <div className="text-sm font-black text-slate-200 mb-1">{order.product_name_at_order}</div>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-medium text-slate-500">{order.destination_code}</span>
+                    <span className="text-[10px] font-medium text-slate-500">{order.destination_code}</span>
                     <span className="text-sm font-black text-white">{order.quantity_cs} CS</span>
                   </div>
                 </button>
@@ -114,18 +114,18 @@ export default function Shipping() {
         </aside>
 
         {/* RIGHT: ALLOCATION & CONFIRMATION */}
-        <main className="lg:col-span-7">
+        <main className="lg:col-span-7 order-1 lg:order-2">
           {selectedOrder ? (
             <div className="space-y-6">
-              <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-                <div className="flex justify-between items-start mb-8">
+              <div className="bg-slate-900/40 border border-slate-800 rounded-2xl lg:rounded-3xl p-6 lg:p-8 shadow-2xl">
+                <div className="flex flex-col sm:flex-row justify-between items-start mb-6 lg:mb-8 gap-4">
                   <div>
-                    <h3 className="text-xl font-black text-white tracking-tight mb-1">{selectedOrder.product_name_at_order}</h3>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{selectedOrder.destination_code} / {selectedOrder.order_code}</p>
+                    <h3 className="text-lg lg:text-xl font-black text-white tracking-tight mb-1">{selectedOrder.product_name_at_order}</h3>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{selectedOrder.destination_code} / {selectedOrder.order_code}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Order Quantity</p>
-                    <p className="text-2xl font-black text-white">{selectedOrder.quantity_cs} <span className="text-xs text-slate-500">CS</span></p>
+                    <p className="text-xl lg:text-2xl font-black text-white">{selectedOrder.quantity_cs} <span className="text-xs text-slate-500">CS</span></p>
                   </div>
                 </div>
 
@@ -133,39 +133,41 @@ export default function Shipping() {
                   <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
                     <Package size={14} className="text-amber-500" /> Inventory Allocation (FIFO)
                   </div>
-                  
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-2xl overflow-hidden">
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="border-b border-slate-800">
-                          <th className="py-3 px-4 text-[9px] font-black text-slate-600 uppercase">Lot Number</th>
-                          <th className="py-3 px-4 text-[9px] font-black text-slate-600 uppercase">Expiry</th>
-                          <th className="py-3 px-4 text-[9px] font-black text-slate-600 uppercase text-right">Stock</th>
-                          <th className="py-3 px-4 text-[9px] font-black text-slate-600 uppercase text-right w-32">Allocation</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-800/50">
-                        {productStocks.map((stock) => (
-                          <tr key={stock.id} className="text-xs">
-                            <td className="py-3 px-4 font-mono font-bold text-slate-400">{stock.mfg_lot}</td>
-                            <td className="py-3 px-4 text-slate-500">{stock.expiry_date}</td>
-                            <td className="py-3 px-4 text-right font-bold text-slate-300">{stock.stock_cs} CS</td>
-                            <td className="py-3 px-4">
-                              <input
-                                type="number"
-                                value={allocations[stock.id] || 0}
-                                onChange={(e) => setAllocations({ ...allocations, [stock.id]: Number(e.target.value) })}
-                                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-right font-mono text-white outline-none focus:border-amber-500"
-                              />
-                            </td>
+
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-xl lg:rounded-2xl overflow-hidden">
+                    <div className="overflow-x-auto custom-scrollbar">
+                      <table className="w-full text-left min-w-[500px]">
+                        <thead>
+                          <tr className="border-b border-slate-800">
+                            <th className="py-3 px-4 text-[9px] font-black text-slate-600 uppercase">Lot Number</th>
+                            <th className="py-3 px-4 text-[9px] font-black text-slate-600 uppercase">Expiry</th>
+                            <th className="py-3 px-4 text-[9px] font-black text-slate-600 uppercase text-right">Stock</th>
+                            <th className="py-3 px-4 text-[9px] font-black text-slate-600 uppercase text-right w-32">Allocation</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/50">
+                          {productStocks.map((stock) => (
+                            <tr key={stock.id} className="text-xs">
+                              <td className="py-3 px-4 font-mono font-bold text-slate-400">{stock.mfg_lot}</td>
+                              <td className="py-3 px-4 text-slate-500">{stock.expiry_date}</td>
+                              <td className="py-3 px-4 text-right font-bold text-slate-300">{stock.stock_cs} CS</td>
+                              <td className="py-3 px-4">
+                                <input
+                                  type="number"
+                                  value={allocations[stock.id] || 0}
+                                  onChange={(e) => setAllocations({ ...allocations, [stock.id]: Number(e.target.value) })}
+                                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-right font-mono text-white outline-none focus:border-amber-500"
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-slate-800 flex flex-col md:flex-row gap-6 items-end">
+                <div className="mt-6 lg:mt-8 pt-6 lg:pt-8 border-t border-slate-800 flex flex-col sm:flex-row gap-4 lg:gap-6 items-end">
                   <div className="flex-1 w-full">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Shipping Date</label>
                     <div className="relative">
@@ -174,14 +176,14 @@ export default function Shipping() {
                         type="date"
                         value={shippingDate}
                         onChange={(e) => setShippingDate(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-sm text-white outline-none focus:border-amber-500"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl lg:rounded-2xl pl-12 pr-4 py-3 lg:py-4 text-sm text-white outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
-                  
+
                   <button
                     onClick={handleConfirmShipping}
-                    className="w-full md:w-auto bg-amber-600 hover:bg-amber-500 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-900/20 transition-all flex items-center justify-center gap-3 group"
+                    className="w-full sm:w-auto bg-amber-600 hover:bg-amber-500 text-white px-6 lg:px-10 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-black text-[10px] lg:text-xs uppercase tracking-widest shadow-lg shadow-amber-900/20 transition-all flex items-center justify-center gap-3 group"
                   >
                     Confirm Shipment <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </button>

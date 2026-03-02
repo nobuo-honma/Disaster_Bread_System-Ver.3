@@ -10,6 +10,7 @@ import Orders from './components/orders/Orders';
 import Shipping from './components/orders/Shipping';
 import Receiving from './components/orders/Receiving';
 import Manufacturing from './components/orders/Manufacturing';
+import Inventory from './components/inventory/Inventory';
 import ProductsMaster from './components/masters/ProductsMaster';
 import ItemsMaster from './components/masters/ItemsMaster';
 import BOMMaster from './components/masters/BOMMaster';
@@ -23,6 +24,8 @@ export default function App() {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard />;
+      case 'inventory':
+        return <Inventory />;
       case 'orders':
         return <Orders />;
       case 'shipping':

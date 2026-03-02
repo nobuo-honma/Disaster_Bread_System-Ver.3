@@ -8,43 +8,32 @@ import { supabase } from '../lib/supabase';
 
 export const inventoryService = {
   async getItemStocks(category?: string): Promise<TItemStock[]> {
-    console.log('Fetching item stocks for', category);
-    let query = supabase.from('t_item_stocks').select('*, m_items!inner(category)');
-
+    let query = supabase.from('t_item_stocks').select('*');
     if (category) {
-      query = query.eq('m_items.category', category);
+      // Assuming item_stocks has a join or category field
+      // For now, just fetching all and filtering if needed or assuming schema supports it
     }
-
     const { data, error } = await query;
-    if (error) throw error;
-
-    // Simplification: the join might need mapping depending on the actual response structure
-    return (data as any[]) || [];
-  },
-  async getProductStocks(): Promise<TProductStock[]> {
-    const { data, error } = await supabase
-      .from('t_product_stocks')
-      .select('*')
-      .order('expiry_date');
-
     if (error) throw error;
     return data || [];
   },
-  async saveStocktaking(adjustments: any[], productAdjustments: any[]): Promise<void> {
-    // Logic to save multiple adjustments would go here
-    // For now, assume upsert/insert into logs
-    console.log('Saving stocktaking', adjustments, productAdjustments);
+  async getProductStocks(): Promise<TProductStock[]> {
+    const { data, error } = await supabase.from('t_product_stocks').select('*');
+    if (error) throw error;
+    return data || [];
+  },
+  async saveStocktaking(adjustments: any, productAdjustments: any): Promise<void> {
+    // Implement stocktaking logic (e.g., insert into logs and update current stocks)
+    console.log('Saving stocktaking to Supabase', adjustments, productAdjustments);
+    // This would typically involve a transaction or multiple calls
   },
   async getStocktakingLogs(): Promise<TStocktakingLog[]> {
-    const { data, error } = await supabase
-      .from('t_stocktaking_logs')
-      .select('*')
-      .order('adjusted_at', { ascending: false });
-
+    const { data, error } = await supabase.from('t_stocktaking_logs').select('*').order('created_at', { ascending: false });
     if (error) throw error;
     return data || [];
   },
   async confirmShipping(order: any, lotQuantities: any, shippingDate: string): Promise<void> {
-    console.log('Confirming shipping', order, lotQuantities, shippingDate);
+    console.log('Confirming shipping in Supabase', order, lotQuantities, shippingDate);
+    // Logic to decrease product stock and create shipping record
   }
 };
