@@ -114,6 +114,9 @@ export default function Inventory() {
                                                 <span className="text-xs font-mono font-bold text-blue-500">{stock.item_code}</span>
                                             </td>
                                             <td className="py-4 px-6 text-right">
+                                                <span className="text-sm font-bold text-slate-300">{stock.m_items?.item_name || '名称未設定'}</span>
+                                            </td>
+                                            <td className="py-4 px-6 text-right">
                                                 <span className="text-sm font-mono text-slate-400">{stock.actual_stock}</span>
                                             </td>
                                             <td className="py-4 px-6 text-right">
@@ -146,6 +149,7 @@ export default function Inventory() {
                             <thead>
                                 <tr className="bg-slate-950/50 border-b border-slate-800">
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Product Code</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Product Name</th>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Lot Number</th>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Expiry Date</th>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Stock (CS)</th>
@@ -158,6 +162,9 @@ export default function Inventory() {
                                     <tr key={stock.id} className="group hover:bg-slate-800/10 transition-colors">
                                         <td className="py-4 px-6">
                                             <span className="text-xs font-bold text-slate-200">{stock.product_code}</span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right">
+                                            <span className="text-sm font-bold text-slate-300">{stock.m_products?.product_name || '名称未設定'}</span>
                                         </td>
                                         <td className="py-4 px-6">
                                             <span className="text-xs font-mono font-bold text-amber-500">{stock.mfg_lot}</span>

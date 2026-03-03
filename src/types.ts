@@ -90,6 +90,9 @@ export interface TItemStock {
   available_stock: number;
   stock_status: string;
   updated_at: string;
+  m_items?: {
+    item_name: string;
+  };
 }
 
 export interface TProductStock {
@@ -101,6 +104,9 @@ export interface TProductStock {
   expiry_date: string;
   remarks?: string;
   updated_at: string;
+  m_products?: {
+    product_name: string;
+  };
 }
 
 export interface TReceiving {
