@@ -44,14 +44,13 @@ export default function Inventory() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            // masterService に getBoms() が実装されている前提です。
-            // もし未実装なら masterService.ts に追加してください。
+            // masterService に新設した getAllBoms() を使用
             const [iStocks, pStocks, mItems, mPlans, mBoms, mProducts] = await Promise.all([
                 inventoryService.getItemStocks(),
                 inventoryService.getProductStocks(),
                 masterService.getItems(),
                 manufacturingService.getAllPlans(),
-                masterService.getBoms(), // 修正ポイント: 直接SQLを叩かずサービス経由にする
+                masterService.getAllBoms(), // 全件取得に変更
                 masterService.getProducts()
             ]);
 
@@ -59,12 +58,11 @@ export default function Inventory() {
             setProductStocks(pStocks || []);
             setItems(mItems || []);
             setPlans(mPlans || []);
-            setBoms(mBoms || []); // 確実に配列としてセット
+            setBoms(mBoms || []);
             setProducts(mProducts || []);
 
         } catch (error) {
             console.error('Failed to fetch inventory data:', error);
-            // 致命的なエラーでも、空配列をセットしてUIの崩壊を防ぐ
             setBoms([]);
         } finally {
             setLoading(false);
@@ -146,8 +144,8 @@ export default function Inventory() {
                     <button
                         onClick={() => setIsStocktaking(!isStocktaking)}
                         className={`flex-1 sm:flex-none px-4 lg:px-6 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl font-black text-[10px] lg:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg ${isStocktaking
-                                ? 'bg-rose-600 text-white shadow-rose-900/20'
-                                : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-600'
+                            ? 'bg-rose-600 text-white shadow-rose-900/20'
+                            : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-600'
                             }`}
                     >
                         <ArrowRightLeft size={14} /> {isStocktaking ? 'キャンセル' : '棚卸入力'}
