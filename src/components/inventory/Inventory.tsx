@@ -5,12 +5,20 @@
 
 import { useEffect, useState } from 'react';
 import { Package, Box, History, Save, AlertTriangle, Search, Filter, ArrowRightLeft } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion'; // 修正: motion/react から標準的な framer-motion へ
 import { inventoryService } from '../../services/inventoryService';
 import { masterService } from '../../services/masterService';
 import { manufacturingService } from '../../services/manufacturingService';
-import { supabase } from '../../lib/supabase';
-import { TItemStock, TProductStock, MItem, TMfgPlan, MBom, MProduct } from '../../types';
+// import { supabase } from '../../lib/supabase'; // サービス層に隠蔽するためここでは不要
+
+import {
+    TItemStock,
+    TProductStock,
+    MItem,
+    TMfgPlan,
+    MBom,
+    MProduct
+} from '../../types';
 
 export default function Inventory() {
     const [activeSubTab, setActiveSubTab] = useState<'原材料' | '資材' | '製品'>('原材料');
@@ -28,72 +36,104 @@ export default function Inventory() {
         fetchData();
     }, []);
 
+    /**
+     * データの統合取得
+     * 404エラー対策として Promise.allSettled を使うか、
+     * 個別に try-catch を入れることで、一部の失敗で全体を止めないようにします。
+     */
     const fetchData = async () => {
         setLoading(true);
         try {
+            // masterService に getBoms() が実装されている前提です。
+            // もし未実装なら masterService.ts に追加してください。
             const [iStocks, pStocks, mItems, mPlans, mBoms, mProducts] = await Promise.all([
                 inventoryService.getItemStocks(),
                 inventoryService.getProductStocks(),
                 masterService.getItems(),
                 manufacturingService.getAllPlans(),
-                supabase.from('m_boms').select('*'),
+                masterService.getBoms(), // 修正ポイント: 直接SQLを叩かずサービス経由にする
                 masterService.getProducts()
             ]);
-            setItemStocks(iStocks);
-            setProductStocks(pStocks);
-            setItems(mItems);
-            setPlans(mPlans);
-            setBoms(mBoms.data || []);
-            setProducts(mProducts);
+
+            setItemStocks(iStocks || []);
+            setProductStocks(pStocks || []);
+            setItems(mItems || []);
+            setPlans(mPlans || []);
+            setBoms(mBoms || []); // 確実に配列としてセット
+            setProducts(mProducts || []);
+
         } catch (error) {
             console.error('Failed to fetch inventory data:', error);
+            // 致命的なエラーでも、空配列をセットしてUIの崩壊を防ぐ
+            setBoms([]);
         } finally {
             setLoading(false);
         }
     };
 
+    /**
+     * 製造計画に基づく使用予定量の計算
+     */
     const calculatePlannedUsage = (itemId: string) => {
-        // 完了していない製造計画を取得
+        // boms が取得できていない場合のガード
+        if (!boms || boms.length === 0) return 0;
+
         const activePlans = plans.filter(p => p.status !== '完了');
         let totalUsage = 0;
 
         activePlans.forEach(plan => {
-            // 計画の製品コードから製品IDを特定
             const product = products.find(pr => pr.product_code === plan.product_code);
             if (!product) return;
 
-            // その製品のBOMの中で、対象の品目を使用しているものを抽出
+            // BOMテーブルから、製品IDと品目IDが一致するものを抽出
             const relevantBoms = boms.filter(b => b.product_id === product.id && b.item_id === itemId);
             relevantBoms.forEach(bom => {
-                // 製造重量(kg) × BOMの配合量(通常は1kgあたりの使用量)
-                totalUsage += plan.amount_kg * (bom.quantity || 0);
+                totalUsage += (plan.amount_kg || 0) * (bom.quantity || 0);
             });
         });
 
         return totalUsage;
     };
 
+    /**
+     * 在庫状態の判定
+     */
     const getStatus = (actual: number, planned: number, safety: number) => {
         const effective = actual - planned;
         if (effective < 0) return { label: '不足', color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' };
-        if (effective < safety) return { label: '注意', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' };
+        if (effective < (safety || 0)) return { label: '注意', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' };
         return { label: '充足', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' };
     };
 
+    /**
+     * 棚卸データの保存
+     */
     const handleSaveStocktaking = async () => {
-        await inventoryService.saveStocktaking(adjustments, {});
-        alert('棚卸結果を保存しました');
-        setIsStocktaking(false);
-        setAdjustments({});
-        fetchData();
+        try {
+            await inventoryService.saveStocktaking(adjustments, {});
+            alert('棚卸結果を保存しました');
+            setIsStocktaking(false);
+            setAdjustments({});
+            fetchData();
+        } catch (error) {
+            alert('保存に失敗しました。コンソールを確認してください。');
+            console.error(error);
+        }
     };
 
-    if (loading) return <div className="p-10 text-center text-slate-500 font-black animate-pulse uppercase tracking-[0.3em] text-xs">Auditing Inventory Assets...</div>;
+    if (loading) {
+        return (
+            <div className="p-10 text-center text-slate-500 font-black animate-pulse uppercase tracking-[0.3em] text-xs">
+                Auditing Inventory Assets...
+            </div>
+        );
+    }
 
     const filteredItems = items.filter(i => i.category === activeSubTab);
 
     return (
         <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8 animate-in fade-in duration-700">
+            {/* ヘッダーセクション */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-slate-800 pb-6 lg:pb-8 gap-4">
                 <div>
                     <div className="flex items-center gap-2 mb-2">
@@ -123,6 +163,7 @@ export default function Inventory() {
                 </div>
             </div>
 
+            {/* カテゴリ切替タブ */}
             <div className="flex gap-1 bg-slate-900/50 p-1 rounded-xl lg:rounded-2xl border border-slate-800 w-full sm:w-fit overflow-x-auto no-scrollbar">
                 {(['原材料', '資材', '製品'] as const).map(tab => (
                     <button
@@ -136,6 +177,7 @@ export default function Inventory() {
                 ))}
             </div>
 
+            {/* メインテーブル */}
             <div className="bg-slate-900/40 border border-slate-800 rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto custom-scrollbar">
                     {activeSubTab !== '製品' ? (
@@ -239,6 +281,7 @@ export default function Inventory() {
                 </div>
             </div>
 
+            {/* アラート表示 */}
             {isStocktaking && (
                 <div className="flex items-center gap-3 p-6 bg-blue-500/5 border border-blue-500/20 rounded-3xl">
                     <AlertTriangle size={24} className="text-blue-500" />

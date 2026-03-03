@@ -30,11 +30,27 @@ export const masterService = {
   },
 
   // BOM
+  /**
+   * 在庫管理画面などで使用：すべてのBOMデータを一括取得する
+   */
+  async getAllBoms(): Promise<MBom[]> {
+    const { data, error } = await supabase.from('m_boms').select('*');
+    if (error) {
+      console.warn('BOM全件取得エラー:', error.message);
+      return [];
+    }
+    return data || [];
+  },
+
+  /**
+   * 特定の製品編集などで使用：指定されたproductIdのBOMのみ取得する
+   */
   async getBOM(productId: string): Promise<MBom[]> {
     const { data, error } = await supabase.from('m_boms').select('*').eq('product_id', productId);
     if (error) throw error;
     return data || [];
   },
+
   async saveBOM(productId: string, entries: Partial<MBom>[]): Promise<void> {
     const { error: deleteError } = await supabase.from('m_boms').delete().eq('product_id', productId);
     if (deleteError) throw deleteError;
