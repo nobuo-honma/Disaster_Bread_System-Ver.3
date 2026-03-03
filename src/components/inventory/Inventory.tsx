@@ -57,8 +57,8 @@ export default function Inventory() {
                     <button
                         onClick={() => setIsStocktaking(!isStocktaking)}
                         className={`flex-1 sm:flex-none px-4 lg:px-6 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl font-black text-[10px] lg:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg ${isStocktaking
-                                ? 'bg-rose-600 text-white shadow-rose-900/20'
-                                : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-600'
+                            ? 'bg-rose-600 text-white shadow-rose-900/20'
+                            : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-600'
                             }`}
                     >
                         <ArrowRightLeft size={14} /> {isStocktaking ? 'Cancel' : 'Stocktaking'}
@@ -98,6 +98,7 @@ export default function Inventory() {
                             <thead>
                                 <tr className="bg-slate-950/50 border-b border-slate-800">
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Item Code</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Item Name</th>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Logical Stock</th>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Actual Stock</th>
                                     <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Diff</th>
