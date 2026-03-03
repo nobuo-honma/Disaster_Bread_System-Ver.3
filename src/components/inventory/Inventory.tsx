@@ -10,13 +10,14 @@ import { inventoryService } from '../../services/inventoryService';
 import { masterService } from '../../services/masterService';
 import { manufacturingService } from '../../services/manufacturingService';
 import { supabase } from '../../lib/supabase';
-import { TItemStock, TProductStock, MItem, TMfgPlan, MBom } from '../../types';
+import { TItemStock, TProductStock, MItem, TMfgPlan, MBom, MProduct } from '../../types';
 
 export default function Inventory() {
     const [activeSubTab, setActiveSubTab] = useState<'原材料' | '資材' | '製品'>('原材料');
     const [itemStocks, setItemStocks] = useState<TItemStock[]>([]);
     const [productStocks, setProductStocks] = useState<TProductStock[]>([]);
     const [items, setItems] = useState<MItem[]>([]);
+    const [products, setProducts] = useState<MProduct[]>([]);
     const [plans, setPlans] = useState<TMfgPlan[]>([]);
     const [boms, setBoms] = useState<MBom[]>([]);
     const [loading, setLoading] = useState(true);
@@ -30,18 +31,20 @@ export default function Inventory() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [iStocks, pStocks, mItems, mPlans, mBoms] = await Promise.all([
+            const [iStocks, pStocks, mItems, mPlans, mBoms, mProducts] = await Promise.all([
                 inventoryService.getItemStocks(),
                 inventoryService.getProductStocks(),
                 masterService.getItems(),
                 manufacturingService.getAllPlans(),
-                supabase.from('m_boms').select('*')
+                supabase.from('m_boms').select('*'),
+                masterService.getProducts()
             ]);
             setItemStocks(iStocks);
             setProductStocks(pStocks);
             setItems(mItems);
             setPlans(mPlans);
             setBoms(mBoms.data || []);
+            setProducts(mProducts);
         } catch (error) {
             console.error('Failed to fetch inventory data:', error);
         } finally {
@@ -49,15 +52,20 @@ export default function Inventory() {
         }
     };
 
-    const calculatePlannedUsage = (itemCode: string) => {
-        // Get active plans (not '完了')
+    const calculatePlannedUsage = (itemId: string) => {
+        // 完了していない製造計画を取得
         const activePlans = plans.filter(p => p.status !== '完了');
         let totalUsage = 0;
 
         activePlans.forEach(plan => {
-            // Find BOM entries for this product that use this item
-            const relevantBoms = boms.filter(b => b.product_code === plan.product_code && b.item_code === itemCode);
+            // 計画の製品コードから製品IDを特定
+            const product = products.find(pr => pr.product_code === plan.product_code);
+            if (!product) return;
+
+            // その製品のBOMの中で、対象の品目を使用しているものを抽出
+            const relevantBoms = boms.filter(b => b.product_id === product.id && b.item_id === itemId);
             relevantBoms.forEach(bom => {
+                // 製造重量(kg) × BOMの配合量(通常は1kgあたりの使用量)
                 totalUsage += plan.amount_kg * (bom.quantity || 0);
             });
         });
@@ -102,14 +110,14 @@ export default function Inventory() {
                                 : 'bg-slate-900 text-slate-400 border border-slate-800 hover:border-slate-600'
                             }`}
                     >
-                        <ArrowRightLeft size={14} /> {isStocktaking ? 'Cancel' : 'Stocktaking'}
+                        <ArrowRightLeft size={14} /> {isStocktaking ? 'キャンセル' : '棚卸入力'}
                     </button>
                     {isStocktaking && (
                         <button
                             onClick={handleSaveStocktaking}
                             className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white px-4 lg:px-6 py-2.5 lg:py-3 rounded-xl lg:rounded-2xl font-black text-[10px] lg:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20"
                         >
-                            <Save size={14} /> Save
+                            <Save size={14} /> 保存
                         </button>
                     )}
                 </div>
@@ -134,18 +142,18 @@ export default function Inventory() {
                         <table className="w-full text-left min-w-[900px]">
                             <thead>
                                 <tr className="bg-slate-950/50 border-b border-slate-800">
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Item Info</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Actual Stock / (Planned)</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Effective Diff</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Status</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Last Updated</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">品目情報</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">実在庫 / (使用予定)</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">有効在庫差分</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">ステータス</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">最終更新</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800/50">
                                 {filteredItems.map((item) => {
                                     const stock = itemStocks.find(s => s.item_code === item.item_code);
                                     const actual = stock?.actual_stock || 0;
-                                    const planned = calculatePlannedUsage(item.item_code);
+                                    const planned = calculatePlannedUsage(item.id);
                                     const diff = actual - planned;
                                     const status = getStatus(actual, planned, item.safety_stock);
 
@@ -194,12 +202,12 @@ export default function Inventory() {
                         <table className="w-full text-left min-w-[800px]">
                             <thead>
                                 <tr className="bg-slate-950/50 border-b border-slate-800">
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Product Code</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Lot Number</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Expiry Date</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Stock (CS)</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Stock (P)</th>
-                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Last Updated</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">製品コード</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">製造ロット</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">賞味期限</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">在庫数 (CS)</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">在庫数 (P)</th>
+                                    <th className="py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">最終更新</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800/50">
@@ -235,9 +243,9 @@ export default function Inventory() {
                 <div className="flex items-center gap-3 p-6 bg-blue-500/5 border border-blue-500/20 rounded-3xl">
                     <AlertTriangle size={24} className="text-blue-500" />
                     <div>
-                        <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-1">Stocktaking Mode Active</p>
+                        <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-1">棚卸モード実行中</p>
                         <p className="text-[10px] font-bold text-blue-500/60 uppercase tracking-widest">
-                            You are currently adjusting actual stock levels. Logical stock will be updated upon saving.
+                            現在、実在庫の調整を行っています。保存すると論理在庫が更新されます。
                         </p>
                     </div>
                 </div>
