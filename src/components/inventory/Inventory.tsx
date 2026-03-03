@@ -117,7 +117,7 @@ export default function Inventory() {
                                                 <span className="text-sm font-bold text-slate-300">{stock.m_items?.item_name || '名称未設定'}</span>
                                             </td>
                                             <td className="py-4 px-6 text-right">
-                                                <span className="text-sm font-mono text-slate-400">{stock.actual_stock}</span>
+                                                <span className="text-sm font-mono text-slate-400">{stock.available_stock ?? stock.actual_stock}</span>
                                             </td>
                                             <td className="py-4 px-6 text-right">
                                                 {isStocktaking ? (
