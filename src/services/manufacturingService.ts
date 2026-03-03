@@ -40,7 +40,7 @@ export const manufacturingService = {
   },
 
   async saveProductionResult(result: Partial<TProductStock>): Promise<void> {
-    const { error } = await supabase.from('t_product_stocks').insert(result);
+    const { error } = await supabase.from('t_product_stock').insert(result);
     if (error) throw error;
   }
 };

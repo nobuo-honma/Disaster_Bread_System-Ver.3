@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 
 export const inventoryService = {
   async getItemStocks(category?: string): Promise<TItemStock[]> {
-    let query = supabase.from('t_item_stocks').select('*');
+    let query = supabase.from('t_item_stock').select('*');
     if (category) {
       // Assuming item_stocks has a join or category field
       // For now, just fetching all and filtering if needed or assuming schema supports it
@@ -18,7 +18,7 @@ export const inventoryService = {
     return data || [];
   },
   async getProductStocks(): Promise<TProductStock[]> {
-    const { data, error } = await supabase.from('t_product_stocks').select('*');
+    const { data, error } = await supabase.from('t_product_stock').select('*');
     if (error) throw error;
     return data || [];
   },
@@ -28,7 +28,7 @@ export const inventoryService = {
     // This would typically involve a transaction or multiple calls
   },
   async getStocktakingLogs(): Promise<TStocktakingLog[]> {
-    const { data, error } = await supabase.from('t_stocktaking_logs').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('t_stocktaking_log').select('*').order('adjusted_at', { ascending: false });
     if (error) throw error;
     return data || [];
   },
