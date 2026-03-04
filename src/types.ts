@@ -7,21 +7,27 @@ export interface MProduct {
   id: string;
   product_code: string;
   product_name: string;
-  specification?: string;
-  unit_cs_to_p: number;
+  mfg_type: string;
+  units_per_kg: number;
+  units_per_cs: number;
+  product_category: string;
   is_active: boolean;
-  mfg_type?: string;
+  remarks?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface MItem {
   id: string;
   item_code: string;
   item_name: string;
-  category: string;
+  category: '原材料' | '資材';
   unit: string;
-  safety_stock: number;
-  min_stock_level?: number;
-  is_active: boolean;
+  min_stock: number;
+  is_active?: boolean;
+  remarks?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface MBom {
@@ -38,16 +44,16 @@ export interface MBom {
 
 export interface MDestination {
   id: string;
-  dest_code: string;
-  dest_name: string;
-  dest_type: string;
-  postal_code?: string;
+  destination_code: string;
+  destination_name: string;
+  zip_code?: string;
   address?: string;
-  phone?: string;
+  tel?: string;
   contact_person?: string;
-  is_active: boolean;
-  destination_code?: string;
-  destination_name?: string;
+  remarks?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface MUser {

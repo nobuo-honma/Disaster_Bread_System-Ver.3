@@ -178,8 +178,6 @@ export default function Orders() {
         setDestinations(resD);
         setProductsMaster(resP);
         setItemsMaster(resI);
-        // BOM is fetched per product or globally if needed, here we mock it
-        setBomMaster([]);
       } catch (err) {
         setFetchError('予期しないエラーが発生しました。ページを再読み込みしてください。');
       } finally {
@@ -202,15 +200,15 @@ export default function Orders() {
     const kw = destSearch.trim().toLowerCase();
     if (!kw) return destinations;
     return destinations.filter(d =>
-      (d.dest_name || '').toLowerCase().includes(kw) ||
-      (d.dest_code || '').toLowerCase().includes(kw)
+      (d.destination_name || '').toLowerCase().includes(kw) ||
+      (d.destination_code || '').toLowerCase().includes(kw)
     );
   }, [destinations, destSearch]);
 
   const selectedDestName = useMemo(
     () =>
-      destinations.find(d => d.dest_code === orderHeader.destination_code)
-        ?.dest_name ?? '出荷先を検索・選択',
+      destinations.find(d => d.destination_code === orderHeader.destination_code)
+        ?.destination_name ?? '出荷先を検索・選択',
     [orderHeader.destination_code, destinations]
   );
 
@@ -282,8 +280,19 @@ export default function Orders() {
   }, []);
 
   const handleDetailFlavorChange = useCallback(
-    (id: string, flavorType: string, productName: string) => {
+    async (id: string, flavorType: string, productName: string) => {
       const flavorObj = getFlavorsForProductName(productName).find(x => x.flavor === flavorType);
+      if (flavorObj) {
+        try {
+          const bom = await masterService.getBOM(flavorObj.code);
+          setBomMaster(prev => {
+            const filtered = prev.filter(b => b.product_code !== flavorObj.code);
+            return [...filtered, ...bom];
+          });
+        } catch {
+          console.error('BOM取得失敗');
+        }
+      }
       setOrderDetails(prev =>
         prev.map(d =>
           d.id === id
@@ -382,32 +391,41 @@ export default function Orders() {
               </button>
 
               {isDestOpen && (
-                <div role="listbox" className="absolute z-50 w-full mt-3 bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-                  <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center gap-3">
-                    <Search size={16} className="text-slate-500 shrink-0" />
-                    <input
-                      autoFocus
-                      type="search"
-                      placeholder="名称またはコードで検索..."
-                      value={destSearch}
-                      onChange={e => setDestSearch(e.target.value)}
-                      className="bg-transparent text-sm text-white outline-none w-full placeholder:text-slate-600"
-                    />
+                <div
+                  role="listbox"
+                  aria-labelledby="dest-label"
+                  className="absolute z-50 top-full left-0 mt-2 w-full bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden"
+                >
+                  <div className="p-3 border-b border-slate-800">
+                    <div className="relative">
+                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input
+                        type="text"
+                        value={destSearch}
+                        onChange={e => setDestSearch(e.target.value)}
+                        placeholder="出荷先を検索..."
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-sm text-white outline-none focus:border-orange-500"
+                        autoFocus
+                      />
+                    </div>
                   </div>
-                  <ul className="max-h-60 overflow-y-auto">
-                    {filteredDestinations.length > 0 ? filteredDestinations.map(d => (
-                      <li
-                        key={d.id}
-                        role="option"
-                        aria-selected={orderHeader.destination_code === d.dest_code}
-                        onClick={() => handleSelectDestination(d.dest_code)}
-                        className="p-4 text-xs text-slate-400 hover:bg-orange-600 hover:text-white transition-colors cursor-pointer flex justify-between aria-selected:bg-orange-700 aria-selected:text-white"
-                      >
-                        <span>{d.dest_name}</span>
-                        <span className="text-[10px] opacity-50 font-mono">{d.dest_code}</span>
+                  <ul className="max-h-48 overflow-y-auto">
+                    {filteredDestinations.map(d => (
+                      <li key={d.destination_code}>
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={orderHeader.destination_code === d.destination_code}
+                          onClick={() => handleSelectDestination(d.destination_code)}
+                          className="w-full text-left px-4 py-3 text-sm hover:bg-slate-800 transition-colors flex justify-between items-center"
+                        >
+                          <span className="font-bold text-white">{d.destination_name}</span>
+                          <span className="text-xs font-mono text-slate-500">{d.destination_code}</span>
+                        </button>
                       </li>
-                    )) : (
-                      <li className="p-8 text-center text-xs text-slate-600">一致する出荷先が見つかりません</li>
+                    ))}
+                    {filteredDestinations.length === 0 && (
+                      <li className="px-4 py-6 text-center text-slate-500 text-sm">該当なし</li>
                     )}
                   </ul>
                 </div>
@@ -436,13 +454,13 @@ export default function Orders() {
               </button>
             </div>
             <div className="overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left min-w-[600px]">
-                <thead className="bg-slate-950/50 text-[10px] text-slate-600 font-black uppercase tracking-widest">
-                  <tr>
-                    <th className="py-4 lg:py-5 px-6 lg:px-8">Product</th>
-                    <th className="py-4 lg:py-5 px-6 lg:px-8">Flavor</th>
-                    <th className="py-4 lg:py-5 px-6 lg:px-8 w-32 text-right">Qty (CS)</th>
-                    <th className="py-4 lg:py-5 px-6 lg:px-8 w-16"><span className="sr-only">Actions</span></th>
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-950/50 border-b border-slate-800">
+                    <th className="py-4 px-8 text-[10px] font-black text-slate-500 uppercase tracking-widest">製品名</th>
+                    <th className="py-4 px-8 text-[10px] font-black text-slate-500 uppercase tracking-widest">種類（味）</th>
+                    <th className="py-4 px-8 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right w-36">数量（CS）</th>
+                    <th className="py-4 px-8 w-16"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/50">
@@ -451,7 +469,7 @@ export default function Orders() {
                       key={detail.id}
                       detail={detail}
                       uniqueProductNames={uniqueProductNames}
-                      flavors={getFlavorsForProductName(detail.product_name)}
+                      flavors={detail.product_name ? getFlavorsForProductName(detail.product_name) : []}
                       onProductChange={handleDetailProductChange}
                       onFlavorChange={handleDetailFlavorChange}
                       onQuantityChange={handleDetailQuantityChange}

@@ -44,7 +44,7 @@ export default function ProductsMaster() {
   const handleAddNew = () => {
     const newId = `new-${Date.now()}`;
     setEditingId(newId);
-    setEditForm({ id: newId, product_code: '', product_name: '', unit_cs_to_p: 1, is_active: true });
+    setEditForm({ id: newId, product_code: '', product_name: '', mfg_type: '', units_per_kg: 1, units_per_cs: 1, product_category: '', is_active: true });
   };
 
   if (loading) return <div className="p-10 text-center text-slate-500 font-black animate-pulse uppercase tracking-[0.3em] text-xs">Accessing Product Repository...</div>;
@@ -110,12 +110,12 @@ export default function ProductsMaster() {
                     {editingId === p.id ? (
                       <input
                         type="number"
-                        value={editForm.unit_cs_to_p}
-                        onChange={(e) => setEditForm({ ...editForm, unit_cs_to_p: Number(e.target.value) })}
+                        value={editForm.units_per_cs}
+                        onChange={(e) => setEditForm({ ...editForm, units_per_cs: Number(e.target.value) })}
                         className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white text-right outline-none focus:border-emerald-500 w-24"
                       />
                     ) : (
-                      <span className="text-sm font-mono text-slate-400">{p.unit_cs_to_p}</span>
+                      <span className="text-sm font-mono text-slate-400">{p.units_per_cs}</span>
                     )}
                   </td>
                   <td className="py-4 px-6 text-center">

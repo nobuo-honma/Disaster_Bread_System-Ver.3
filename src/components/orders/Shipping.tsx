@@ -57,7 +57,14 @@ export default function Shipping() {
       if (!confirm('在庫が不足していますが、出荷を確定しますか？')) return;
     }
 
-    await inventoryService.confirmShipping(selectedOrder, allocations, shippingDate);
+    const lotQuantities = productStocks
+      .filter(s => (allocations[s.id] ?? 0) > 0)
+      .map(s => ({
+        mfg_lot: s.mfg_lot,
+        quantity_cs: allocations[s.id] ?? 0,
+        quantity_p: 0,
+      }));
+    await inventoryService.confirmShipping(selectedOrder, lotQuantities, shippingDate);
     alert('出荷を確定しました');
     setSelectedOrder(null);
     fetchPendingOrders();

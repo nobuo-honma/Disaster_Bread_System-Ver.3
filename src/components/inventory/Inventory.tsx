@@ -94,8 +94,8 @@ export default function Inventory() {
                     if (cases === 0 && plan.amount_kg) {
                         const product = products.find(p => p.product_code === plan.product_code);
                         // 例として 1kg=1p 換算と仮定。本来は単位に応じた換算が必要
-                        if (product && product.unit_cs_to_p) {
-                            cases = Math.floor(Number(plan.amount_kg) / product.unit_cs_to_p);
+                        if (product && product.units_per_cs) {
+                            cases = Math.floor(Number(plan.amount_kg) / product.units_per_cs);
                         }
                     }
                     baseAmount = cases;
@@ -125,7 +125,14 @@ export default function Inventory() {
         setIsSubmitting(true);
         try {
             // itemStocksの調整とproductStocksの調整をサービスへ送る
-            await inventoryService.saveStocktaking(adjustments, productAdjustments);
+            const payload = itemStocks
+                .filter(s => adjustments[s.id] !== undefined)
+                .map(s => ({
+                    itemCode: s.item_code,
+                    afterStock: adjustments[s.id],
+                    remarks: `棚卸調整 ${new Date().toLocaleDateString('ja-JP')}`,
+                }));
+            await inventoryService.saveStocktaking(payload);
             setIsStocktaking(false);
             setAdjustments({});
             setProductAdjustments({});
@@ -236,7 +243,7 @@ export default function Inventory() {
                                     const actual = stock?.actual_stock || 0;
                                     const planned = calculatePlannedUsage(item.item_code, item.category);
                                     const diff = actual - planned;
-                                    const status = getStatus(actual, planned, item.safety_stock);
+                                    const status = getStatus(actual, planned, item.min_stock);
 
                                     return (
                                         <tr key={item.id} className="group hover:bg-white/[0.02] transition-colors">

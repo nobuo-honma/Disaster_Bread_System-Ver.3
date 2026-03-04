@@ -148,6 +148,12 @@ function generateLotNumber(productCode: string, date: string, serialSuffix = '00
   return `${dc}${mc}${yy}${productCode}`;
 }
 
+// ─── 計画コード生成 ──────────────────────────────────────────────
+const generatePlanCode = (orderCode: string, index: number): string => {
+  const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  return `PLN-${orderCode}-${date}-${String(index + 1).padStart(2, '0')}`;
+};
+
 // ─── 製造実績入力モーダル ─────────────────────────────────────────
 function ProductionResultModal({ order, plan, onSave, onCancel }: {
   order: TOrder;
@@ -385,28 +391,26 @@ export default function Manufacturing() {
   useEffect(() => {
     if (!selectedOrder) { setPlans([]); return; }
     const ex = allPlans[selectedOrder.order_code];
-    setPlans(ex?.length ? ex : [{ id: '', plan_code: '', order_code: selectedOrder.order_code, product_code: selectedOrder.product_code, scheduled_date: selectedOrder.request_delivery_date, amount_kg: 0, amount_cs: 0, status: '計画', remarks: '' }]);
+    setPlans(ex?.length ? ex : [{ id: '', plan_code: generatePlanCode(selectedOrder.order_code, 0), order_code: selectedOrder.order_code, product_code: selectedOrder.product_code, scheduled_date: selectedOrder.request_delivery_date, amount_kg: 0, amount_cs: 0, status: '計画', remarks: '' }]);
   }, [selectedOrder, allPlans]);
 
   const currentProduct = useMemo(() => products.find(p => p.product_code === selectedOrder?.product_code), [products, selectedOrder]);
 
   const metrics = useMemo(() => {
     if (!selectedOrder || !currentProduct) return { totalWeight: 0, plannedWeight: 0, remainingWeight: 0, progress: 0 };
-    // Assuming 1 CS = unit_cs_to_p, and we need units_per_kg which is not in MProduct. Let's assume 1kg = 1 unit for now or add to type.
-    // For simplicity, let's use a fixed ratio if not available.
-    const unitsPerKg = 1;
-    const totalWeight = (selectedOrder.quantity_cs * currentProduct.unit_cs_to_p) / unitsPerKg;
+    // CS → 個数 → kg: (quantity_cs * units_per_cs) / units_per_kg
+    const totalWeight = (selectedOrder.quantity_cs * currentProduct.units_per_cs) / (currentProduct.units_per_kg || 1);
     const plannedWeight = plans.reduce((s, p) => s + (Number(p.amount_kg) || 0), 0);
     return { totalWeight, plannedWeight, remainingWeight: totalWeight - plannedWeight, progress: totalWeight > 0 ? Math.min((plannedWeight / totalWeight) * 100, 100) : 0 };
   }, [selectedOrder, currentProduct, plans]);
 
   const calcCs = useCallback((weight: number | string) => {
-    if (!currentProduct || !currentProduct.unit_cs_to_p) return 0;
-    const unitsPerKg = 1;
-    return Math.floor((Number(weight) * unitsPerKg) / currentProduct.unit_cs_to_p);
+    if (!currentProduct || !currentProduct.units_per_cs) return 0;
+    // kg → 個数 → CS: (weight * units_per_kg) / units_per_cs
+    return Math.floor((Number(weight) * (currentProduct.units_per_kg || 1)) / currentProduct.units_per_cs);
   }, [currentProduct]);
 
-  const destName = useCallback((code: string) => destinations.find(d => d.dest_code === code)?.dest_name || code, [destinations]);
+  const destName = useCallback((code: string) => destinations.find(d => d.destination_code === code)?.destination_name || code, [destinations]);
   const flavor = (remarks: string) => remarks?.match(/味:([^|]+)/)?.[1]?.trim() || '通常';
   const orderStatus = (code: string): string | null => {
     const ps = allPlans[code]; if (!ps?.length) return null;
@@ -664,7 +668,7 @@ export default function Manufacturing() {
                       </button>
                     </div>
                   ))}
-                  <button onClick={() => setPlans(prev => [...prev, { id: '', plan_code: '', order_code: selectedOrder.order_code, product_code: selectedOrder.product_code, scheduled_date: selectedOrder.request_delivery_date, amount_kg: 0, amount_cs: 0, status: '計画', remarks: '' }])}
+                  <button onClick={() => setPlans(prev => [...prev, { id: '', plan_code: generatePlanCode(selectedOrder.order_code, prev.length), order_code: selectedOrder.order_code, product_code: selectedOrder.product_code, scheduled_date: selectedOrder.request_delivery_date, amount_kg: 0, amount_cs: 0, status: '計画', remarks: '' }])}
                     className="w-full py-4 border-2 border-dashed border-slate-800 rounded-xl lg:rounded-2xl text-[10px] font-black text-slate-600 hover:bg-slate-900/40 hover:text-slate-400 transition-all flex items-center justify-center gap-2">
                     <Plus size={14} /> 計画行を追加
                   </button>
