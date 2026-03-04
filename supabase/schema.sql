@@ -24,7 +24,7 @@ CREATE TABLE m_items (
 );
 
 -- 3. Master BOM
-CREATE TABLE m_boms (
+CREATE TABLE m_bom (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id UUID REFERENCES m_products(id),
   product_code TEXT NOT NULL,

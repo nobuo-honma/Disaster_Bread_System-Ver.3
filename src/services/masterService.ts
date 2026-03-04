@@ -34,7 +34,7 @@ export const masterService = {
    * 在庫管理画面などで使用：すべてのBOMデータを一括取得する
    */
   async getAllBoms(): Promise<MBom[]> {
-    const { data, error } = await supabase.from('m_boms').select('*');
+    const { data, error } = await supabase.from('m_bom').select('*');
     if (error) {
       console.warn('BOM全件取得エラー:', error.message);
       return [];
@@ -43,19 +43,19 @@ export const masterService = {
   },
 
   /**
-   * 特定の製品編集などで使用：指定されたproductIdのBOMのみ取得する
+   * 特定の製品編集などで使用：指定されたproductCodeのBOMのみ取得する
    */
-  async getBOM(productId: string): Promise<MBom[]> {
-    const { data, error } = await supabase.from('m_boms').select('*').eq('product_id', productId);
+  async getBOM(productCode: string): Promise<MBom[]> {
+    const { data, error } = await supabase.from('m_bom').select('*').eq('product_code', productCode);
     if (error) throw error;
     return data || [];
   },
 
-  async saveBOM(productId: string, entries: Partial<MBom>[]): Promise<void> {
-    const { error: deleteError } = await supabase.from('m_boms').delete().eq('product_id', productId);
+  async saveBOM(productCode: string, entries: Partial<MBom>[]): Promise<void> {
+    const { error: deleteError } = await supabase.from('m_bom').delete().eq('product_code', productCode);
     if (deleteError) throw deleteError;
     if (entries.length > 0) {
-      const { error: insertError } = await supabase.from('m_boms').insert(entries.map(e => ({ ...e, product_id: productId })));
+      const { error: insertError } = await supabase.from('m_bom').insert(entries.map(e => ({ ...e, product_code: productCode })));
       if (insertError) throw insertError;
     }
   },

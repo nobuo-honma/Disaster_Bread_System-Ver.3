@@ -76,22 +76,32 @@ export default function Inventory() {
      * 製造計画に基づく使用予定量の計算
      * 原材料(kgベース)と資材(個数/ケースベース)をBOMの単位に従って算出
      */
-    const calculatePlannedUsage = useCallback((itemId: string, category: string) => {
+    const calculatePlannedUsage = useCallback((itemCode: string, category: string) => {
         if (!boms.length || !plans.length) return 0;
 
         const activePlans = plans.filter(p => p.status !== '完了');
         let totalUsage = 0;
 
         activePlans.forEach(plan => {
-            const product = products.find(pr => pr.product_code === plan.product_code);
-            if (!product) return;
-
-            const relevantBoms = boms.filter(b => b.product_id === product.id && b.item_id === itemId);
+            const relevantBoms = boms.filter(b => b.product_code === plan.product_code && b.item_code === itemCode);
             relevantBoms.forEach(bom => {
-                // 原材料の場合は計画重量(kg)にBOM原単位を乗じる
-                // 資材の場合は、資材数として計算（計画ケース数に依存する場合などロジックを調整）
-                const baseAmount = category === '原材料' ? (plan.amount_kg || 0) : (plan.amount_cs || 0);
-                totalUsage += baseAmount * (bom.quantity || 0);
+                let baseAmount = 0;
+                if (category === '原材料') {
+                    baseAmount = Number(plan.amount_kg || 0);
+                } else {
+                    // amount_csが0の場合(通常重量で計画される場合)は、製品マスターのケース入数からケース数を逆算
+                    let cases = Number(plan.amount_cs || 0);
+                    if (cases === 0 && plan.amount_kg) {
+                        const product = products.find(p => p.product_code === plan.product_code);
+                        // 例として 1kg=1p 換算と仮定。本来は単位に応じた換算が必要
+                        if (product && product.unit_cs_to_p) {
+                            cases = Math.floor(Number(plan.amount_kg) / product.unit_cs_to_p);
+                        }
+                    }
+                    baseAmount = cases;
+                }
+                const quantity = Number(bom.usage_rate ?? bom.quantity ?? 0);
+                totalUsage += baseAmount * quantity;
             });
         });
 
@@ -163,8 +173,8 @@ export default function Inventory() {
                         }}
                         disabled={isSubmitting}
                         className={`flex-1 sm:flex-none px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 border ${isStocktaking
-                                ? 'bg-rose-950 border-rose-500 text-rose-400'
-                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600 hover:text-white'
+                            ? 'bg-rose-950 border-rose-500 text-rose-400'
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600 hover:text-white'
                             }`}
                     >
                         <ArrowRightLeft size={14} /> {isStocktaking ? '編集を破棄' : '棚卸モード開始'}
@@ -224,7 +234,7 @@ export default function Inventory() {
                                 {filteredItems.map((item) => {
                                     const stock = itemStocks.find(s => s.item_code === item.item_code);
                                     const actual = stock?.actual_stock || 0;
-                                    const planned = calculatePlannedUsage(item.id, item.category);
+                                    const planned = calculatePlannedUsage(item.item_code, item.category);
                                     const diff = actual - planned;
                                     const status = getStatus(actual, planned, item.safety_stock);
 
@@ -389,7 +399,7 @@ export default function Inventory() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {items.filter(i => {
                         const stock = itemStocks.find(s => s.item_code === i.item_code);
-                        return (stock?.actual_stock || 0) < calculatePlannedUsage(i.id, i.category);
+                        return (stock?.actual_stock || 0) < calculatePlannedUsage(i.item_code, i.category);
                     }).length > 0 && (
                             <div className="flex items-start gap-4 p-5 bg-rose-950/20 border border-rose-500/20 rounded-2xl">
                                 <AlertTriangle className="text-rose-500 shrink-0 mt-1" size={20} />
